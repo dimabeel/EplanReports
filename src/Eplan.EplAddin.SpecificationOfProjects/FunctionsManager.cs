@@ -60,16 +60,33 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 List<ArticleReference> filteredArticleReferences = new List<ArticleReference>();
                 foreach (ArticleReference reference in articleReferences)
                 {
-                    // Example: +CAB5-F8 
+                    // Example: +CAB5-F8 || +CAB1-1-F8
                     string[] splitedReferenceIdentifyingName = reference.IdentifyingName.Split('-');
                     if (splitedReferenceIdentifyingName.Length > 1)
                     {
                         string articleDeviceType = splitedReferenceIdentifyingName[1];
                         string articleType = splitedReferenceIdentifyingName[0];
                         // Проверяем корректность, буква 'W' - кабели, они не нужны
-                        if ((articleDeviceType[0] != 'W') && (articleType.Length > 1))
+                        // Ловим символ между CAB1 и F8 (пример), что бы понять, что пришло
+                        int fictiv;
+                        bool isDigit = int.TryParse(articleDeviceType.ToString(), out fictiv);
+                        if ((isDigit == false) && (fictiv < 100))
                         {
-                            filteredArticleReferences.Add(reference);
+                            // Цифры нет, все штатно
+                            if ((articleDeviceType[0] != 'W') && (articleType.Length > 1))
+                            {
+                                filteredArticleReferences.Add(reference);
+                            }
+                        }
+                        else
+                        {
+                            // Если цифра есть, то сдвигаем проверку на 1 индекс вправо
+                            // Так как теперь компонент лежит там
+                            articleDeviceType = splitedReferenceIdentifyingName[2];
+                            if ((articleDeviceType[0] != 'W') && (articleType.Length > 1))
+                            {
+                                filteredArticleReferences.Add(reference);
+                            }
                         }
                     }
                 }
@@ -93,11 +110,20 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             string productName = string.Empty;
             try
             {
-                // firstFilter[0] = +CAB1; firstFilter[1] = -FQT1
-                string[] firtsFilter = articleReference.IdentifyingName.Split('-');
-                // seconfFilter[0] = ""; secondFilter[1] = CAB1 - цель функции
-                string[] secondFilter = firtsFilter[0].Split('+');
-                productName = secondFilter[1];
+                // +CAB1-1-FQT1 - нештатно; +CAB1-FQT1 - штатно
+                // [0] +CAB1; [1] 1; [2] FQT1;
+                string[] mainStringSplit = articleReference.IdentifyingName.Split('-');
+                string[] noReadyName = mainStringSplit[0].Split('+');
+                int fictiv;
+                bool isDigit = int.TryParse(mainStringSplit[1].ToString(), out fictiv);
+                if ((isDigit == false) && (fictiv < 100))
+                {
+                    productName = noReadyName[1];
+                }
+                else
+                {
+                    productName = noReadyName[1] + "-" + mainStringSplit[1].ToString();
+                }
             }
             catch
             {
@@ -840,11 +866,12 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                     // Это значит, что элемента нет в структурных обозначениях
                                     // Следовательно, изделия у этого элемента нет
                                     locationInfo.Description = locationInfos.Find(o => o.Name == articleName).Description;
-                                    // Пропускаем этот элемент т.к описание должно быть всегда
                                 }
                                 catch
                                 {
-                                    continue; // Прыгаем на следующую итерацию цикла
+                                    // Description = Name
+                                    //continue; // Прыгаем на следующую итерацию цикла
+                                    locationInfo.Description = locationInfo.Name;
                                 }
                                 DBCon.LocationDescriptions.Add(locationInfo);
                                 DBCon.SaveChanges();
