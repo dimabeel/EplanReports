@@ -52,7 +52,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo.Value = componentCatalog.ManufacturerFullName
                      + " (" + componentCatalog.ManufacturerSmallName + ")";
                 // Проверяем, кроме скобок есть что нибудь или нет
-                if (componentPropertiesInfo.Value.Length < minStringLength)
+                if (componentPropertiesInfo.Value.Length < minStringManufacturerLength)
                 {
                     componentPropertiesInfo.Value = "";
                 }
@@ -63,7 +63,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo.Property = "Поставщик";
                 componentPropertiesInfo.Value = componentCatalog.SupplierFullName
                     + " (" + componentCatalog.SupplierSmallName + ")";
-                if (componentPropertiesInfo.Value.Length < minStringLength)
+                if (componentPropertiesInfo.Value.Length < minStringManufacturerLength)
                 {
                     componentPropertiesInfo.Value = "";
                 }

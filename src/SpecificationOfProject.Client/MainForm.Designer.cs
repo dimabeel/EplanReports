@@ -120,7 +120,6 @@
             this.Controls.Add(this.button1);
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(1300, 600);
-            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(1300, 600);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

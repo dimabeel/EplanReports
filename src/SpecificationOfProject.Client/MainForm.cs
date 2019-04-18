@@ -51,11 +51,14 @@ namespace SpecificationOfProject.Client
                     foreach (PArticle pArticle in pArticles)
                     {
                         // Ищу описание по изделию
-                        string Descr = DBCon.LocationDescriptions.Where(
+                        string descr = DBCon.LocationDescriptions.Where(
                             o => o.LocationDescriptionID == pArticle.LocationDesriptionID).
                             Select(o1 => o1.Description).FirstOrDefault();
+                        string locationID = DBCon.LocationDescriptions.Where(
+                            o => o.LocationDescriptionID == pArticle.LocationDesriptionID).
+                            Select(o1 => o1.LocationDescriptionID).FirstOrDefault().ToString();
                         // Заполняю первый уровень
-                        projNode.Nodes.Add(Descr);
+                        projNode.Nodes.Add(locationID, descr);
                         // Заполняю второй уровень           
                         List<Component> components = DBCon.Components.Where(
                             o => o.PArticleID == pArticle.PArticleID).ToList();
@@ -83,7 +86,8 @@ namespace SpecificationOfProject.Client
                 dataGridView1.Columns.Clear();
                 dataGridView1.ReadOnly = true;
                 string selectedItemParentName = treeView1.SelectedNode.Parent.Text;
-                string selectedItem = treeView1.SelectedNode.Text;
+                int selectedItemID = Convert.ToInt32(treeView1.SelectedNode.Name);
+
                 var column1 = new DataGridViewColumn();
                 column1.Name = "Name";
                 column1.HeaderText = "Наименование";
@@ -99,7 +103,6 @@ namespace SpecificationOfProject.Client
                 column3.HeaderText = "Количество";
                 column3.Width = 80;
                 column3.CellTemplate = new DataGridViewTextBoxCell();
-
                 dataGridView1.Columns.Add(column1);
                 dataGridView1.Columns.Add(column2);
                 dataGridView1.Columns.Add(column3);
@@ -111,7 +114,7 @@ namespace SpecificationOfProject.Client
                         o => o.Name == selectedItemParentName).FirstOrDefault();
                     // Нашел код описания изделия
                     int selectedItemLocationID = DBCon.LocationDescriptions.Where(
-                        o => o.Description == selectedItem).Select(
+                        o => o.LocationDescriptionID == selectedItemID).Select(
                         o1 => o1.LocationDescriptionID).FirstOrDefault();
                     // Нашел изделие, которое выбрано в дереве по коду
                     PArticle pArticle = DBCon.PArticles.Where(
@@ -161,9 +164,10 @@ namespace SpecificationOfProject.Client
                 dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
                 dataGridView1.Columns.Clear();
                 dataGridView1.ReadOnly = true;
-                string selectedItem = treeView1.SelectedNode.Text;
                 dataGridView1.Columns.Add(column1);
                 dataGridView1.Columns.Add(column2);
+
+                string selectedItem = treeView1.SelectedNode.Text;
 
                 using (DBContext DBCon = new DBContext())
                 {
@@ -209,6 +213,7 @@ namespace SpecificationOfProject.Client
                 dataGridView1.ReadOnly = true;
                 dataGridView1.Columns.Add(column1);
                 dataGridView1.Columns.Add(column2);
+                
                 // Ищу выбранный компонент и по нему заполняю грид
                 string componentName = treeView1.SelectedNode.Name;
                 List<ComponentPropertiesInfo> componentPropertiesInfos = FM.GetPropertiesInfos(componentName);
