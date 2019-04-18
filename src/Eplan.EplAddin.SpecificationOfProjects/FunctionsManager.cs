@@ -53,7 +53,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         }
 
         // Функция фильтрации ссылок по необходимым параметрам
-        public List<ArticleReference> FilterArticleReferences(ArticleReference[] articleReferences) 
+        public List<ArticleReference> FilterArticleReferences(ArticleReference[] articleReferences)
         {
             try
             {
@@ -265,9 +265,17 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     MultiLangString langString; // Для получения строк по языку
                     componentCatalogInfos[i] = new ComponentCatalogInfo();
                     componentCatalogInfos[i].PartNumber = articles[i].Properties.ARTICLE_PARTNR.ToString();
-                    componentCatalogInfos[i].TypeNumber = articles[i].Properties.ARTICLE_TYPENR;
 
-                    if (articles[i].Properties.ARTICLE_ORDERNR != "")
+                    if (articles[i].Properties.ARTICLE_TYPENR.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].TypeNumber = articles[i].Properties.ARTICLE_TYPENR;
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].TypeNumber = null;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_ORDERNR.IsEmpty == false)
                     {
                         componentCatalogInfos[i].OrderNumber = articles[i].Properties.ARTICLE_ORDERNR;
 
@@ -277,7 +285,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].OrderNumber = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_MANUFACTURER != "")
+                    if (articles[i].Properties.ARTICLE_MANUFACTURER.IsEmpty == false)
                     {
                         componentCatalogInfos[i].ManufacturerSmallName = articles[i].Properties.ARTICLE_MANUFACTURER;
                     }
@@ -286,7 +294,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].ManufacturerSmallName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_MANUFACTURER_NAME != "")
+                    if (articles[i].Properties.ARTICLE_MANUFACTURER_NAME.IsEmpty == false)
                     {
                         componentCatalogInfos[i].ManufacturerFullName = articles[i].Properties.ARTICLE_MANUFACTURER_NAME;
                     }
@@ -295,7 +303,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].ManufacturerFullName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_SUPPLIER != "")
+                    if (articles[i].Properties.ARTICLE_SUPPLIER.IsEmpty == false)
                     {
                         componentCatalogInfos[i].SupplierSmallName = articles[i].Properties.ARTICLE_SUPPLIER;
                     }
@@ -304,7 +312,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].SupplierSmallName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_SUPPLIER_NAME != "")
+                    if (articles[i].Properties.ARTICLE_SUPPLIER_NAME.IsEmpty == false)
                     {
                         componentCatalogInfos[i].SupplierFullName = articles[i].Properties.ARTICLE_SUPPLIER_NAME;
                     }
@@ -313,7 +321,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].SupplierFullName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_DESCR1 != "")
+                    if (articles[i].Properties.ARTICLE_DESCR1.IsEmpty == false)
                     {
                         langString = articles[i].Properties.ARTICLE_DESCR1;
                         componentCatalogInfos[i].Description1 = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
@@ -323,7 +331,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].Description1 = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_DESCR2 != "")
+                    if (articles[i].Properties.ARTICLE_DESCR2.IsEmpty == false)
                     {
                         langString = articles[i].Properties.ARTICLE_DESCR2;
                         componentCatalogInfos[i].Description2 = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
@@ -333,7 +341,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].Description2 = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_CHARACTERISTICS != "")
+                    if (articles[i].Properties.ARTICLE_CHARACTERISTICS.IsEmpty == false)
                     {
                         componentCatalogInfos[i].TechnicalCharacteristics = articles[i].Properties.ARTICLE_CHARACTERISTICS;
                     }
@@ -342,7 +350,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].TechnicalCharacteristics = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_NOTE != "")
+                    if (articles[i].Properties.ARTICLE_NOTE.IsEmpty == false)
                     {
                         langString = articles[i].Properties.ARTICLE_NOTE;
                         componentCatalogInfos[i].Note = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
@@ -352,7 +360,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].Note = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_CROSSSECTIONFROM != "")
+                    if (articles[i].Properties.ARTICLE_CROSSSECTIONFROM.IsEmpty == false)
                     {
                         componentCatalogInfos[i].TerminalCrossSectionFrom = articles[i].Properties.ARTICLE_CROSSSECTIONFROM;
                     }
@@ -361,7 +369,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].TerminalCrossSectionFrom = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_CROSSSECTIONTILL != "")
+                    if (articles[i].Properties.ARTICLE_CROSSSECTIONTILL.IsEmpty == false)
                     {
                         componentCatalogInfos[i].TerminalCrossSectionTo = articles[i].Properties.ARTICLE_CROSSSECTIONTILL;
                     }
@@ -370,7 +378,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].TerminalCrossSectionTo = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_ELECTRICALCURRENT != "")
+                    if (articles[i].Properties.ARTICLE_ELECTRICALCURRENT.IsEmpty == false)
                     {
                         componentCatalogInfos[i].ElectricalCurrent = articles[i].Properties.ARTICLE_ELECTRICALCURRENT;
                     }
@@ -379,7 +387,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].ElectricalCurrent = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_ELECTRICALPOWER != "")
+                    if (articles[i].Properties.ARTICLE_ELECTRICALPOWER.IsEmpty == false)
                     {
                         componentCatalogInfos[i].ElectricalSwitchingCapacity = articles[i].Properties.ARTICLE_ELECTRICALPOWER;
                     }
@@ -388,7 +396,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].ElectricalSwitchingCapacity = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_VOLTAGE != "")
+                    if (articles[i].Properties.ARTICLE_VOLTAGE.IsEmpty == false)
                     {
                         componentCatalogInfos[i].Voltage = articles[i].Properties.ARTICLE_VOLTAGE;
                     }
@@ -397,7 +405,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].Voltage = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_VOLTAGETYPE != "")
+                    if (articles[i].Properties.ARTICLE_VOLTAGETYPE.IsEmpty == false)
                     {
                         componentCatalogInfos[i].VoltageType = articles[i].Properties.ARTICLE_VOLTAGETYPE;
                     }
@@ -406,15 +414,63 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].VoltageType = null;
                     }
 
-                    componentCatalogInfos[i].Height = articles[i].Properties.ARTICLE_HEIGHT.ToDouble();
-                    componentCatalogInfos[i].Width = articles[i].Properties.ARTICLE_WIDTH.ToDouble();
-                    componentCatalogInfos[i].Depth = articles[i].Properties.ARTICLE_DEPTH.ToDouble();
-                    componentCatalogInfos[i].Weight = articles[i].Properties.ARTICLE_WEIGHT.ToDouble();
-                    componentCatalogInfos[i].MountingSiteID = articles[i].Properties.ARTICLE_MOUNTINGSITE;
-                    componentCatalogInfos[i].MountingSpace = articles[i].Properties.ARTICLE_MOUNTINGSPACE.ToDouble();
+                    if (articles[i].Properties.ARTICLE_HEIGHT.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].Height = articles[i].Properties.ARTICLE_HEIGHT;
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].Height = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_WIDTH.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].Width = articles[i].Properties.ARTICLE_WIDTH.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].Width = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_DEPTH.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].Depth = articles[i].Properties.ARTICLE_DEPTH.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].Depth = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_WEIGHT.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].Weight = articles[i].Properties.ARTICLE_WEIGHT.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].Weight = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_MOUNTINGSITE.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].MountingSiteID = articles[i].Properties.ARTICLE_MOUNTINGSITE;
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].MountingSiteID = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_MOUNTINGSPACE.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].MountingSpace = articles[i].Properties.ARTICLE_MOUNTINGSPACE.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].MountingSpace = 0;
+                    }
+
                     componentCatalogInfos[i].PartGroup = GetPartGroup(articles[i]); // 0-00-000
 
-                    if (articles[i].Properties.ARTICLE_QUANTITYUNIT != "")
+                    if (articles[i].Properties.ARTICLE_QUANTITYUNIT.IsEmpty == false)
                     {
                         langString = articles[i].Properties.ARTICLE_QUANTITYUNIT;
                         string filterString = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU).Trim();
@@ -425,9 +481,16 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].QuantityUnit = null;
                     }
 
-                    componentCatalogInfos[i].PackagingQuantity = articles[i].Properties.ARTICLE_PACKAGINGQUANTITY.ToDouble();
+                    if (articles[i].Properties.ARTICLE_PACKAGINGQUANTITY.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].PackagingQuantity = articles[i].Properties.ARTICLE_PACKAGINGQUANTITY.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].PackagingQuantity = 0;
+                    }
 
-                    if (articles[i].Properties.PART_LASTCHANGE != "")
+                    if (articles[i].Properties.PART_LASTCHANGE.IsEmpty == false)
                     {
                         componentCatalogInfos[i].LastChange = articles[i].Properties.PART_LASTCHANGE;
                     }
@@ -436,14 +499,61 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         componentCatalogInfos[i].LastChange = null;
                     }
 
-                    componentCatalogInfos[i].SalesPrice1 = articles[i].Properties.ARTICLE_SALESPRICE_1.ToDouble();
-                    componentCatalogInfos[i].SalesPrice2 = articles[i].Properties.ARTICLE_SALESPRICE_2.ToDouble();
-                    componentCatalogInfos[i].PurchasePrice1 = articles[i].Properties.ARTICLE_PURCHASEPRICE_1.ToDouble();
-                    componentCatalogInfos[i].PurchasePrice2 = articles[i].Properties.ARTICLE_PURCHASEPRICE_2.ToDouble();
-                    componentCatalogInfos[i].PackagingPrice1 = articles[i].Properties.ARTICLE_PACKAGINGPRICE_1.ToDouble();
-                    componentCatalogInfos[i].PackagingPrice2 = articles[i].Properties.ARTICLE_PACKAGINGPRICE_2.ToDouble();
+                    if (articles[i].Properties.ARTICLE_SALESPRICE_1.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].SalesPrice1 = articles[i].Properties.ARTICLE_SALESPRICE_1.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].SalesPrice1 = 0;
+                    }
 
-                    if (articles[i].Properties.ARTICLE_PRICEUNIT != "")
+                    if (articles[i].Properties.ARTICLE_SALESPRICE_2.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].SalesPrice2 = articles[i].Properties.ARTICLE_SALESPRICE_2.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].SalesPrice2 = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_PURCHASEPRICE_1.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].PurchasePrice1 = articles[i].Properties.ARTICLE_PURCHASEPRICE_1.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].PurchasePrice1 = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_PURCHASEPRICE_2.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].PurchasePrice2 = articles[i].Properties.ARTICLE_PURCHASEPRICE_2.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].PurchasePrice2 = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_PACKAGINGPRICE_1.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].PackagingPrice1 = articles[i].Properties.ARTICLE_PACKAGINGPRICE_1.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].PackagingPrice1 = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_PACKAGINGPRICE_2.IsEmpty == false)
+                    {
+                        componentCatalogInfos[i].PackagingPrice2 = articles[i].Properties.ARTICLE_PACKAGINGPRICE_2.ToDouble();
+                    }
+                    else
+                    {
+                        componentCatalogInfos[i].PackagingPrice2 = 0;
+                    }
+
+                    if (articles[i].Properties.ARTICLE_PRICEUNIT.IsEmpty == false)
                     {
                         componentCatalogInfos[i].PriceUnit = articles[i].Properties.ARTICLE_PRICEUNIT;
                     }
@@ -479,9 +589,9 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 throw GetPartGroupErr;
             }
         }
-        
+
         // Функция записи данных в справочник
-        public void FillComponentCatalog (ComponentCatalogInfo[] componentCatalogInfos)
+        public void FillComponentCatalog(ComponentCatalogInfo[] componentCatalogInfos)
         {
             using (DBContext DBCon = new DBContext())
             {
@@ -504,7 +614,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         try
                         {
                             if (componentCatalogInfo.QuantityUnit != null)
-                            {      
+                            {
                                 quantityUnit = DBCon.QuantityUnits.Where(
                                     o => o.Name == componentCatalogInfo.QuantityUnit)
                                     .FirstOrDefault();
@@ -528,7 +638,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                             {
                                 componentCatalog.QuantityUnitID = null;
                             }
-                            
+
                         }
                         catch
                         {
@@ -625,14 +735,10 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         try
                         {
                             // Получаю последний прайс объекта
-                            var prisesForCheck = DBCon.PriceLists.Where(
-                                o => o.PartNumber == componentCatalogInfo.PartNumber);
-                            List<PriceList> prisesForCheckList = new List<PriceList>();
-                            foreach (PriceList list in prisesForCheck)
-                            {
-                                prisesForCheckList.Add(list);
-                            }
-                            PriceList lastPriceList = prisesForCheckList.Last();
+                            List<PriceList> prisesForCheck = DBCon.PriceLists.Where(
+                                o => o.PartNumber == componentCatalogInfo.PartNumber).OrderBy(
+                                o1 => o1.LastChange).ToList();
+                            PriceList lastPriceList = prisesForCheck.Last();
                             bool priseIsChanged = false; // Флаг на изменение прайса
                             // Проверяю, отличается хотя бы один прайс от того, что есть
                             if (lastPriceList.PackagingPrice1 != componentCatalogInfo.PackagingPrice1) priseIsChanged = true;
@@ -684,15 +790,15 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             }
             catch
             {
-                BaseException dateTimeFromStrErr = new BaseException("Ошибка в функции GetDateTimeFromString",MessageLevel.Error);
+                BaseException dateTimeFromStrErr = new BaseException("Ошибка в функции GetDateTimeFromString", MessageLevel.Error);
                 throw dateTimeFromStrErr;
             }
         }
 
         // Функция записи данных спецификации в БД
-        public void FillSpecification (string[] projectProductNames, List<List<ComponentInfo>> specificationInfo, string projName, List<LocationInfo> locationInfos)
+        public void FillSpecification(string[] projectProductNames, List<List<ComponentInfo>> specificationInfo, string projName, List<LocationInfo> locationInfos)
         {
-            using(DBContext DBCon = new DBContext())
+            using (DBContext DBCon = new DBContext())
             {
                 Proj project = new Proj(); // Модель объекта
                 project.Name = projName;
@@ -707,7 +813,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     catch
                     {
-                        BaseException projAddErr = new BaseException("Ошибка при добавлении проекта в БД (Функция FillSpecification)",MessageLevel.Error);
+                        BaseException projAddErr = new BaseException("Ошибка при добавлении проекта в БД (Функция FillSpecification)", MessageLevel.Error);
                         throw projAddErr;
                     }
 
@@ -761,7 +867,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         BaseException articleAddErr = new BaseException("Ошибка при добавлении изделий в БД (Функция FillSpecification)", MessageLevel.Error);
                         throw articleAddErr;
                     }
-                    
+
                     try
                     {
                         // Добавим компоненты к изделиям, то есть, завершим спецификацию
@@ -801,14 +907,14 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                             {
                                 // Так же, как и в изделиях. Нету в списке структурных обозначений - пропускаем
                                 continue;
-                            }   
+                            }
                         }
                     }
                     catch
                     {
                         BaseException componentAddErr = new BaseException("Ошибка при добавлении компонентов в БД (Функция FillSpecification)", MessageLevel.Error);
                         throw componentAddErr;
-                    }     
+                    }
                 }
                 else
                 {
@@ -854,7 +960,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             }
             catch
             {
-                BaseException getLocDescrErr = new BaseException("Ошибка в функции GetLocationDescriptions",MessageLevel.Error);
+                BaseException getLocDescrErr = new BaseException("Ошибка в функции GetLocationDescriptions", MessageLevel.Error);
                 throw getLocDescrErr;
             }
         }
