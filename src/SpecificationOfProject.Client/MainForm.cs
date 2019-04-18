@@ -37,16 +37,17 @@ namespace SpecificationOfProject.Client
 
             using (DBContext DBCon = new DBContext())
             {
-                // Получаем проекты и изделия
+                // Получаем проекты
                 Proj[] projs = DBCon.Projs.ToArray();
-                PArticle[] pArticles = DBCon.PArticles.ToArray();
 
                 // Перебираем проекты
                 foreach (Proj proj in projs)
                 {
+                    // Получаю изделия по проекту
+                    PArticle[] pArticles = DBCon.PArticles.Where(
+                        o => o.ProjectID == proj.ProjID).ToArray();
                     // Создаю treeNode с  нулевым уровнем = proj.Name
                     TreeNode projNode = new TreeNode(proj.Name);
-                    int nodeCounter = 0;
                     foreach (PArticle pArticle in pArticles)
                     {
                         // Ищу описание по изделию
@@ -55,20 +56,13 @@ namespace SpecificationOfProject.Client
                             Select(o1 => o1.Description).FirstOrDefault();
                         // Заполняю первый уровень
                         projNode.Nodes.Add(Descr);
-                        nodeCounter++;
                         // Заполняю второй уровень           
                         List<Component> components = DBCon.Components.Where(
                             o => o.PArticleID == pArticle.PArticleID).ToList();
                         TreeNode articleNode = new TreeNode();
                         foreach (Component component in components)
                         {
-                            string componentManufacturer = DBCon.ComponentCatalogs.Where(
-                                o => o.PartNumber == component.PartNumber).Select(
-                                o1 => o1.ManufacturerSmallName).FirstOrDefault();
-                            string componentType = DBCon.ComponentCatalogs.Where(
-                                o => o.PartNumber == component.PartNumber).Select(
-                                o1 => o1.TypeNumber).FirstOrDefault();
-                            projNode.LastNode.Nodes.Add(component.PartNumber,componentManufacturer + " " + componentType);          
+                            projNode.LastNode.Nodes.Add(component.PartNumber, component.PartNumber);          
                         }              
                     }
                     treeView1.Nodes.Add(projNode);
@@ -78,6 +72,8 @@ namespace SpecificationOfProject.Client
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            const int minComponentNameLength = 3;
+            const int minComponentDescriptionLength = 5;
             FunctionManager FM = new FunctionManager();
             // Если выбрано значение в дереве и оно первого уровня вложенности
             if (treeView1.SelectedNode != null && treeView1.SelectedNode.Level == 1)
@@ -141,6 +137,8 @@ namespace SpecificationOfProject.Client
                             o1 => o1.Description2).FirstOrDefault();
                         string componentInfo = componentManufacturer + " " + componentType;
                         string componentDescription = componentDescr1 + " (" + componentDescr2 + ")";
+                        if (componentInfo.Length < minComponentNameLength) componentInfo = component.PartNumber;
+                        if (componentDescription.Length < minComponentDescriptionLength) componentDescription = "Отсутствует";
                         dataGridView1.Rows.Add(componentInfo, componentDescription, component.Count);
                     }
 

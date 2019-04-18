@@ -18,7 +18,9 @@ namespace SpecificationOfProject.Client
                 ComponentCatalog componentCatalog = DBCon.ComponentCatalogs.Where(
                     o => o.PartNumber == componentName).FirstOrDefault();
                 ComponentPropertiesInfo componentPropertiesInfo = new ComponentPropertiesInfo();
-                
+                const int minStringManufacturerLength = 4;
+                const int minStringMountingSpaceLength = 6;
+                const int minStringProportionsLength = 5;
                 // Номер изделия
                 componentPropertiesInfo.Property = "Номер изделия";
                 componentPropertiesInfo.Value = componentCatalog.PartNumber;
@@ -50,7 +52,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo.Value = componentCatalog.ManufacturerFullName
                      + " (" + componentCatalog.ManufacturerSmallName + ")";
                 // Проверяем, кроме скобок есть что нибудь или нет
-                if (componentPropertiesInfo.Value.Length < 4)
+                if (componentPropertiesInfo.Value.Length < minStringLength)
                 {
                     componentPropertiesInfo.Value = "";
                 }
@@ -61,7 +63,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo.Property = "Поставщик";
                 componentPropertiesInfo.Value = componentCatalog.SupplierFullName
                     + " (" + componentCatalog.SupplierSmallName + ")";
-                if (componentPropertiesInfo.Value.Length < 4)
+                if (componentPropertiesInfo.Value.Length < minStringLength)
                 {
                     componentPropertiesInfo.Value = "";
                 }
@@ -125,7 +127,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo = new ComponentPropertiesInfo();
                 componentPropertiesInfo.Property = "Высота";
                 componentPropertiesInfo.Value = Convert.ToString(Math.Round(componentCatalog.Height, 3) + " мм");
-                if (componentPropertiesInfo.Value.Length < 5)
+                if (componentPropertiesInfo.Value.Length < minStringProportionsLength)
                 {
                     componentPropertiesInfo.Value = "0";
                 }
@@ -135,7 +137,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo = new ComponentPropertiesInfo();
                 componentPropertiesInfo.Property = "Ширина";
                 componentPropertiesInfo.Value = Convert.ToString(Math.Round(componentCatalog.Width, 3) + " мм");
-                if (componentPropertiesInfo.Value.Length < 5)
+                if (componentPropertiesInfo.Value.Length < minStringProportionsLength)
                 {
                     componentPropertiesInfo.Value = "0";
                 }
@@ -145,7 +147,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo = new ComponentPropertiesInfo();
                 componentPropertiesInfo.Property = "Глубина";
                 componentPropertiesInfo.Value = Convert.ToString(Math.Round(componentCatalog.Depth, 3) + " мм");
-                if (componentPropertiesInfo.Value.Length < 5)
+                if (componentPropertiesInfo.Value.Length < minStringProportionsLength)
                 {
                     componentPropertiesInfo.Value = "0";
                 }
@@ -155,7 +157,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo = new ComponentPropertiesInfo();
                 componentPropertiesInfo.Property = "Вес";
                 componentPropertiesInfo.Value = Convert.ToString(Math.Round(componentCatalog.Weight, 3) + " кг");
-                if (componentPropertiesInfo.Value.Length < 5)
+                if (componentPropertiesInfo.Value.Length < minStringProportionsLength)
                 {
                     componentPropertiesInfo.Value = "0";
                 }
@@ -174,7 +176,7 @@ namespace SpecificationOfProject.Client
                 componentPropertiesInfo = new ComponentPropertiesInfo();
                 componentPropertiesInfo.Property = "Занимаемое пространство";
                 componentPropertiesInfo.Value = Convert.ToString(Math.Round(componentCatalog.MountingSpace, 3) + " мм2");
-                if (componentPropertiesInfo.Value.Length < 5)
+                if (componentPropertiesInfo.Value.Length < minStringMountingSpaceLength)
                 {
                     componentPropertiesInfo.Value = "0";
                 }
