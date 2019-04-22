@@ -639,7 +639,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         // Обработка QuantityUnit для получения ID
                         try
                         {
-                            if (componentCatalogInfo.QuantityUnit != null)
+                            if ((componentCatalogInfo.QuantityUnit != null) && (componentCatalogInfo.QuantityUnit != ""))
                             {
                                 quantityUnit = DBCon.QuantityUnits.Where(
                                     o => o.Name == componentCatalogInfo.QuantityUnit)
