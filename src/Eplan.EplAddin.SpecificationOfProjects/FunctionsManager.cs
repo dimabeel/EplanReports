@@ -799,7 +799,6 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                     }
                 }
-                DBCon.Database.Connection.Close();
             }
         }
 
@@ -863,14 +862,11 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                 locationInfo.Name = articleName;
                                 try
                                 {   // Если не найдено описание такого элемента, то ошибка
-                                    // Это значит, что элемента нет в структурных обозначениях
-                                    // Следовательно, изделия у этого элемента нет
                                     locationInfo.Description = locationInfos.Find(o => o.Name == articleName).Description;
                                 }
                                 catch
                                 {
-                                    // Description = Name
-                                    //continue; // Прыгаем на следующую итерацию цикла
+                                    // Description = Name, ставим описание равным имени
                                     locationInfo.Description = locationInfo.Name;
                                 }
                                 DBCon.LocationDescriptions.Add(locationInfo);
@@ -882,7 +878,33 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                             }
                             else
                             {
-                                projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                // Если обозначение есть, проверяю равняется ли его имя и описание
+                                string locationName = locationInfo.Name;
+                                string locationDescription = locationInfo.Description;
+                                if (locationName.Equals(locationDescription) == true)
+                                {
+                                    try
+                                    {
+                                        // Получаю описание текущего изделия (структурное обозначение)
+                                        string currentLocationDescription = locationInfos.Find(o => o.Name == articleName).Description;
+                                        // Если сработало без ошибок, обновляю его
+                                        locationInfo.Description = currentLocationDescription;
+                                        DBCon.SaveChanges();
+                                        // И присваиваю ID projArticle
+                                        projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                    }
+                                    catch
+                                    {
+                                        // Если ошибка, то значит изделие все равно без описания структурного
+                                        // Значит, оставляем сопоставление Name = Description
+                                        projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                    }
+                                }
+                                else
+                                {
+                                    // Если же описание и имя обозначений разные (введено корректное описание)
+                                    projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                }
                             }
                             projArticle.ProjectID = projID;
                             DBCon.PArticles.Add(projArticle);
