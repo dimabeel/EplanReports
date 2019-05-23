@@ -59,6 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddDocument.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddDocument.Designer.cs">
+      <DependentUpon>AddDocument.cs</DependentUpon>
+    </Compile>
     <Compile Include="CustomDataManager.cs" />
     <Compile Include="FunctionManager.cs" />
     <Compile Include="MainForm.cs">
@@ -69,6 +75,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddDocument.resx">
+      <DependentUpon>AddDocument.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

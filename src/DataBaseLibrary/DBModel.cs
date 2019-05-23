@@ -17,6 +17,9 @@ namespace DataBaseLibrary
 
         // Ссылка на изделие
         public List<PArticle> Articles { get; set; }
+
+        // Ссылка на документы к проекту
+        public List<DocumentForProject> DocumentForProjects { get; set; }
     }
 
     public class PArticle // Изделие
@@ -181,5 +184,22 @@ namespace DataBaseLibrary
 
         // Ссылка на изделия
         public List<PArticle> PArticles { get; set; }
+    }
+
+    public class DocumentForProject // Документ к проекту
+    {
+        [Required][Key]
+        public int DocumentID { get; set; }
+        [Required][ForeignKey("Proj")]
+        public int ProjectID { get; set; }
+        [Required]
+        public string DocumentName { get; set; }
+        [Required]
+        public string DocumentType { get; set; }
+        [Required]
+        public string DocumentPath { get; set; }
+
+        // Ссылка на проекты
+        public Proj Proj { get; set; }
     }
 }

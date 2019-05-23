@@ -29,5 +29,6 @@ namespace DataBaseLibrary
         public DbSet<Section> Sections { get; set; } // Раздел
         public DbSet<Sphere> Spheres { get; set; } // Сфера 
         public DbSet<LocationDescription> LocationDescriptions { get; set; } // Структурные обозначения
+        public DbSet<DocumentForProject> DocumentForProjects { get; set; } // Документы для проекта
     }
 }
