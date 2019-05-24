@@ -51,40 +51,49 @@ namespace SpecificationOfProject.Client
         // Кнопка добавить
         private void button1_Click(object sender, EventArgs e)
         {
-            using (DBContext DBCon = new DBContext())
+            try
             {
-                // Записываю данные для записи
-                DocumentForProject documentForProject = new DocumentForProject();
-                documentForProject.ProjectID = Convert.ToInt32(selectedProject);
-                documentForProject.DocumentName = splittedFileName.Last();
-                documentForProject.DocumentType = comboBox1.Text;
-
-                // Копирую файл в директорию документов проекта
-                string filePath = @"" + openFileDialog1.FileName;
-                FileInfo fileInfo = new FileInfo(filePath);
-                string newDocPath = projectDocDirectoryPath + "\\" + splittedFileName.Last();
-                if (fileInfo.Exists == true)
+                using (DBContext DBCon = new DBContext())
                 {
-                    fileInfo.CopyTo(newDocPath, true);
-                }
-                else
-                {
-                    Exception fileIsNotExist = new Exception("Ошибка копирования, проблемы с файлом.");
-                    throw fileIsNotExist;
-                }
-                documentForProject.DocumentPath = newDocPath;
+                    // Пробую получить хоть какие данные для проверки доступности БД (костыль)
+                    string testConnect = DBCon.Projs.LongCount().ToString();
 
-                // Вношу изменения в базу данных
-                DBCon.DocumentForProjects.Add(documentForProject);
-                DBCon.SaveChanges();
+                    // Записываю данные для записи
+                    DocumentForProject documentForProject = new DocumentForProject();
+                    documentForProject.ProjectID = Convert.ToInt32(selectedProject);
+                    documentForProject.DocumentName = splittedFileName.Last();
+                    documentForProject.DocumentType = comboBox1.Text;
+
+                    // Копирую файл в директорию документов проекта
+                    string filePath = @"" + openFileDialog1.FileName;
+                    FileInfo fileInfo = new FileInfo(filePath);
+                    string newDocPath = projectDocDirectoryPath + "\\" + splittedFileName.Last();
+                    if (fileInfo.Exists == true)
+                    {
+                        fileInfo.CopyTo(newDocPath, true);
+                    }
+                    else
+                    {
+                        Exception fileIsNotExist = new Exception("Ошибка копирования, проблемы с файлом.");
+                        throw fileIsNotExist;
+                    }
+                    documentForProject.DocumentPath = newDocPath;
+
+                    // Вношу изменения в базу данных
+                    DBCon.DocumentForProjects.Add(documentForProject);
+                    DBCon.SaveChanges();
+                }
+                // Закрываю форму и очищаю поля
+                button2_Click(null, null);
+                // Указал, что эта форма подчиняется главной
+                MainForm mainForm = this.Owner as MainForm;
+                // Вызвал функцию в главной форме на обновление грида
+                mainForm.FillDocumentsForProjectGrid();
             }
-            // Закрываю форму и очищаю поля
-            button2_Click(null,null);
-
-            // Указал, что эта форма подчиняется главной
-            MainForm mainForm = this.Owner as MainForm;
-            // Вызвал функцию в главной форме на обновление грида
-            mainForm.FillDocumentsForProjectGrid();
+            catch
+            {
+                MessageBox.Show("Ошибка при добавлении документа к проекту\nПроверьте БД (ошибка в функции добавления)");
+            }          
         }
 
         // Проверяю индекс комбобокса и данные в текстбоксах для активации кнопки

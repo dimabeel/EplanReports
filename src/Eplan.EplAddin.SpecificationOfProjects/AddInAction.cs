@@ -20,7 +20,10 @@ namespace Eplan.AplAddin.SpecificationListOfObjects
         {
             // Класс со всеми функциями данной dll
             FunctionsManager FM = new FunctionsManager();
-            
+
+            // Проверяем ini настройки
+            FM.chekAddInIniFile();
+
             // Получить проект
             Project currentProject = FM.GetProject();
 

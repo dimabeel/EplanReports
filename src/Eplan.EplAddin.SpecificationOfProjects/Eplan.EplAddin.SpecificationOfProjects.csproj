@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddInModule.cs" />
+    <Compile Include="ConfigIniFile.cs" />
     <Compile Include="CustomDataManager.cs" />
     <Compile Include="FunctionsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

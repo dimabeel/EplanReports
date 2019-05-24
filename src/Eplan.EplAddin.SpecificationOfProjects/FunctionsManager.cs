@@ -5,11 +5,261 @@ using Eplan.EplApi.DataModel;
 using Eplan.EplApi.HEServices;
 using System.Linq;
 using DataBaseLibrary;
+using Eplan.EplAddin.SpecificationListOfObjects;
 
 namespace Eplan.EplAddin.SpecificationOfProjects
 {
     public class FunctionsManager
     {
+        // Путь к надстройке
+        string[] originalAssemblypath = AddInModule.m_strOriginalAssemblyPath.Split('\\');
+        
+        // Название файла конфигурации
+        string configFileName = @"SpecificationOfProjectsAddInConfig.ini";
+        
+        // Строка подключения
+        string connectionString = @"";
+        
+        // Получение полного пути к файлу настроек
+        public string GetConfigFilePath()
+        {
+            string path = @"";
+            for (int i = 0; i < originalAssemblypath.Length - 1; i++)
+            {
+                path += originalAssemblypath[i].ToString() + "\\";
+            }
+            path += configFileName;
+            return path;
+        }
+        
+        // Функция проверки ini файла надстройки
+        public void chekAddInIniFile()
+        {
+            string configFilePath = GetConfigFilePath();
+            // Обращаемся к INI файлу
+            ConfigIniFile iniFile = new ConfigIniFile(configFilePath);
+
+            if (iniFile.KeyExists("Data_Source", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Data_Source");
+                connectionString += "Data Source=" + iniProperty.ToString() + ";";
+            }
+            else
+            {      
+                BaseException iniErr = new BaseException("Ошибка в конфигурационном файле надстройки, нет Data Souce",MessageLevel.Error);
+                throw iniErr;
+            }
+
+            if (iniFile.KeyExists("Initial_Catalog", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Initial_Catalog");
+                connectionString += "Initial Catalog=" + iniProperty.ToString() + ";";
+            }
+            else
+            {
+                BaseException iniErr = new BaseException("Ошибка в конфигурационном файле надстройки, нет InitialCatalog", MessageLevel.Error);
+                throw iniErr;
+            }
+
+            if (iniFile.KeyExists("Persist_Security_Info", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Persist_Security_Info");
+                connectionString += "Persist Security Info=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Integrated_Security", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Integrated_Security");
+                connectionString += "Integrated Security=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("User_ID", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "User_ID");
+                connectionString += "User ID=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Password", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Password");
+                connectionString += "Password=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Trusted_Connection", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Trusted_Connection");
+                connectionString += "Trusted_Connection=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Encrypt", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Encrypt");
+                connectionString += "Encrypt=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Trust_Server_Certificate", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Trust_Server_Certificate");
+                connectionString += "TrustServerCertificate=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Application_Name", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Application_Name");
+                connectionString += "Application Name=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Application_Intent", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Application_Intent");
+                connectionString += "ApplicationIntent=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Asynchronous_Processing", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Asynchronous_Processing");
+                connectionString += "Asynchronous Processing=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Column_Encryption_Setting", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Column_Encryption_Setting");
+                connectionString += "Column Encryption Setting=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Connect_Timeout", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Connect_Timeout");
+                connectionString += "Connect Timeout=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Connection_Lifetime", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Connection_Lifetime");
+                connectionString += "Connection Lifetime=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Connect_Retry_Count", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Connect_Retry_Count");
+                connectionString += "ConnectRetryCount=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Connect_Retry_Interval", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Connect_Retry_Interval");
+                connectionString += "ConnectRetryInterval=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Context_Connection", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Context_Connection");
+                connectionString += "Context Connection=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Current_Language", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Current_Language");
+                connectionString += "Current Language=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Enlist", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Enlist");
+                connectionString += "Enlist=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Failover_Partner", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Failover_Partner");
+                connectionString += "Failover Partner=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Max_Pool_Size", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Max_Pool_Size");
+                connectionString += "Max Pool Size=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Min_Pool_Size", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Min_Pool_Size");
+                connectionString += "Min Pool Size=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Multiple_Active_Result_Sets", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Multiple_Active_Result_Sets");
+                connectionString += "MultipleActiveResultSets=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Multi_Subnet_Failover", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Multi_Subnet_Failover");
+                connectionString += "MultiSubnetFailover=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Network_Library", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Network_Library");
+                connectionString += "Network Library=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Packet_Size", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Packet_Size");
+                connectionString += "Packet Size=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Pool_Blocking_Period", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Pool_Blocking_Period");
+                connectionString += "PoolBlockingPeriod=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Pooling", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Pooling");
+                connectionString += "Pooling=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Replication", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Replication");
+                connectionString += "Replication=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Transaction_Binding", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Transaction_Binding");
+                connectionString += "Transaction Binding=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Transparent_Network_IP_Resolution", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Transparent_Network_IP_Resolution");
+                connectionString += "TransparentNetworkIPResolution=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Type_System_Version", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Type_System_Version");
+                connectionString += "Type System Version=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("User_Instance", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "User_Instance");
+                connectionString += "User Instance=" + iniProperty.ToString() + ";";
+            }
+
+            if (iniFile.KeyExists("Workstation_ID", "Config"))
+            {
+                var iniProperty = iniFile.ReadINI("Config", "Workstation_ID");
+                connectionString += "Workstation ID=" + iniProperty.ToString() + ";";
+            }
+        }
+
         // Функция получения проекта
         public Project GetProject()
         {
@@ -619,13 +869,14 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция записи данных в справочник
         public void FillComponentCatalog(ComponentCatalogInfo[] componentCatalogInfos)
         {
-            using (DBContext DBCon = new DBContext())
+            using (DBContext DBCon = new DBContext(connectionString))
             {
                 // Если БД нет - создать и инициализировать
-                if (!DBCon.Database.Exists())
-                {
-                    DBCon.Database.Initialize(false);
-                }
+                //if (!DBCon.Database.Exists())
+                //{
+                //    DBCon.Database.Initialize(false);
+                //}
+
                 foreach (ComponentCatalogInfo componentCatalogInfo in componentCatalogInfos)
                 {
                     // Если в справочнике количество таких PartNumber = 0 (нет таких), то пишем в справочник
@@ -823,7 +1074,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция записи данных спецификации в БД
         public void FillSpecification(string[] projectProductNames, List<List<ComponentInfo>> specificationInfo, string projName, List<LocationInfo> locationInfos)
         {
-            using (DBContext DBCon = new DBContext())
+            using (DBContext DBCon = new DBContext(connectionString))
             {
                 Proj project = new Proj(); // Модель объекта
                 project.Name = projName;

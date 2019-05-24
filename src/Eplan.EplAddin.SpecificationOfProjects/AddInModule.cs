@@ -1,9 +1,10 @@
 ﻿using Eplan.EplApi.ApplicationFramework;
 using Eplan.EplApi.Gui;
 
-namespace Eplan.AplAddin.SpecificationListOfObjects
+
+namespace Eplan.EplAddin.SpecificationListOfObjects
 {
-    public class AddInModule : IEplAddIn
+    public class AddInModule : IEplAddIn, IEplAddInShadowCopy
     {
         public bool OnRegister(ref bool bLoadStart)
         {
@@ -34,6 +35,15 @@ namespace Eplan.AplAddin.SpecificationListOfObjects
         {
             return true;
         }
+
+        // До инициализации получаю путь к надстройке
+        public void OnBeforeInit(string strOriginalAssemblyPath)
+        {
+            m_strOriginalAssemblyPath = strOriginalAssemblyPath;
+        }
+        
+        // static переменная для пути
+        public static string m_strOriginalAssemblyPath;
     }
 }
 
