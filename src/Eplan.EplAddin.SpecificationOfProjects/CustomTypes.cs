@@ -2,14 +2,14 @@
 {
 
     // Модель данных для спецификации
-    public class ComponentInfo
+    public class ComponentShortDescription
     {
         public string PartNumber;
         public int Count;
     }
 
     // Модель данных для считывания свойств компонента из EPLAN
-    public class ComponentCatalogInfo
+    public class ComponentsFullDescription
     {
         public string PartNumber;
         public string TypeNumber;
@@ -47,7 +47,7 @@
         public int PriceUnit;
     }
 
-    public class LocationInfo // Модель для выборки структурных обозначений
+    public class StructuralDescription // Модель для выборки структурных обозначений
     {
         public string Name;
         public string Description;

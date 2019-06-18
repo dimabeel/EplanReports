@@ -26,8 +26,8 @@ namespace Eplan.EplAddin.SpecificationListOfObjects
         {
             //Добавить меню для действия
             Menu MyMenu = new Menu();
-            MyMenu.AddMainMenu("Add-in's", Menu.MainMenuName.eMainMenuUtilities,
-                "Get project specification", "GetSpecification", "In progress", 1);
+            MyMenu.AddMainMenu("Надстройки", Menu.MainMenuName.eMainMenuUtilities,
+                "Выгрузить спецификацию", "GetSpecification", "In progress", 1);
             return true;
         }
 
@@ -39,11 +39,11 @@ namespace Eplan.EplAddin.SpecificationListOfObjects
         // До инициализации получаю путь к надстройке
         public void OnBeforeInit(string strOriginalAssemblyPath)
         {
-            m_strOriginalAssemblyPath = strOriginalAssemblyPath;
+            originalAssemblyPath = strOriginalAssemblyPath;
         }
         
         // static переменная для пути
-        public static string m_strOriginalAssemblyPath;
+        public static string originalAssemblyPath;
     }
 }
 

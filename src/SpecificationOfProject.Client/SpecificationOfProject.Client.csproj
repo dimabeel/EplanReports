@@ -66,8 +66,8 @@
       <DependentUpon>AddDocument.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigIniFile.cs" />
-    <Compile Include="CustomDataManager.cs" />
-    <Compile Include="FunctionManager.cs" />
+    <Compile Include="CustomTypes.cs" />
+    <Compile Include="Functions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

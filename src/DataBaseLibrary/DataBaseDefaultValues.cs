@@ -3,7 +3,7 @@
 namespace DataBaseLibrary
 {
     // Класс, содержащий дефолтные данные для БД
-    public class DBDefaultData
+    public class DataBaseDefaultValues
     {
         // Дейолтные монтажные поверхности
         List<MountingSite> mountingSites = new List<MountingSite>

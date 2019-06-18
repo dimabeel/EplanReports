@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SpecificationOfProject.Client
 {
     // Описание свойств компонента
-    public class ComponentPropertiesInfo
+    public class ComponentProperties
     {
         public string Property;
         public string Value;
@@ -15,7 +15,7 @@ namespace SpecificationOfProject.Client
     }
 
     // Описание компонента для заявки на склад
-    public class DataForWarehouseRequest
+    public class PropertyForWarehouseRequest
     {
         public string PartNumber;
         public string Description1;
@@ -27,14 +27,14 @@ namespace SpecificationOfProject.Client
     }
 
     // Класс для сбора первоначальной информации о компоненте
-    public class ComponentData
+    public class ComponentInitialProperties
     {
         public string PartNumber;
         public int Count;
     }
 
     // Описание компонентов для спецификации
-    public class ComponentDataForSpecification
+    public class ComponentPropertiesForSpecification
     {
         public int articleID;
         public string PartNumber;
@@ -47,7 +47,7 @@ namespace SpecificationOfProject.Client
     }
 
     // Описание изделий для спецификации
-    public class ArticleDataForSpecification
+    public class ArticlePropertiesForSpecification
     {
         public int articleID;
         public string articleName;

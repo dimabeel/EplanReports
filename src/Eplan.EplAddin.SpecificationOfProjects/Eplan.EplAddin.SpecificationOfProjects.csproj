@@ -64,8 +64,8 @@
   <ItemGroup>
     <Compile Include="AddInModule.cs" />
     <Compile Include="ConfigIniFile.cs" />
-    <Compile Include="CustomDataManager.cs" />
-    <Compile Include="FunctionsManager.cs" />
+    <Compile Include="CustomTypes.cs" />
+    <Compile Include="Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AddInAction.cs" />
   </ItemGroup>

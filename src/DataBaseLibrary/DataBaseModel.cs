@@ -11,8 +11,7 @@ namespace DataBaseLibrary
         public int ProjID { get; set; }
         [Required]
         public string Name { get; set; }
-        public DateTime? Date { get; set; }
-        public DateTime? Time { get; set; }
+        public DateTime? DateTime { get; set; }
         public string Executor { get; set; } // Исполнитель
 
         // Ссылка на изделие

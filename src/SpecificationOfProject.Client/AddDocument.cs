@@ -53,28 +53,28 @@ namespace SpecificationOfProject.Client
         {
             try
             {
-                using (DBContext DBCon = new DBContext())
+                using (DataBaseContext DBCon = new DataBaseContext())
                 {
                     // Пробую получить хоть какие данные для проверки доступности БД (костыль)
-                    string testConnect = DBCon.Projs.LongCount().ToString();
+                    var testConnect = DBCon.Projs.LongCount().ToString();
 
                     // Записываю данные для записи
-                    DocumentForProject documentForProject = new DocumentForProject();
+                    var documentForProject = new DocumentForProject();
                     documentForProject.ProjectID = Convert.ToInt32(selectedProject);
                     documentForProject.DocumentName = splittedFileName.Last();
                     documentForProject.DocumentType = comboBox1.Text;
 
                     // Копирую файл в директорию документов проекта
-                    string filePath = @"" + openFileDialog1.FileName;
-                    FileInfo fileInfo = new FileInfo(filePath);
-                    string newDocPath = projectDocDirectoryPath + "\\" + splittedFileName.Last();
+                    var filePath = @"" + openFileDialog1.FileName;
+                    var fileInfo = new FileInfo(filePath);
+                    var newDocPath = projectDocDirectoryPath + "\\" + splittedFileName.Last();
                     if (fileInfo.Exists == true)
                     {
                         fileInfo.CopyTo(newDocPath, true);
                     }
                     else
                     {
-                        Exception fileIsNotExist = new Exception("Ошибка копирования, проблемы с файлом.");
+                        var fileIsNotExist = new Exception("Ошибка копирования, проблемы с файлом.");
                         throw fileIsNotExist;
                     }
                     documentForProject.DocumentPath = newDocPath;
@@ -86,7 +86,7 @@ namespace SpecificationOfProject.Client
                 // Закрываю форму и очищаю поля
                 button2_Click(null, null);
                 // Указал, что эта форма подчиняется главной
-                MainForm mainForm = this.Owner as MainForm;
+                var mainForm = this.Owner as MainForm;
                 // Вызвал функцию в главной форме на обновление грида
                 mainForm.FillDocumentsForProjectGrid();
             }

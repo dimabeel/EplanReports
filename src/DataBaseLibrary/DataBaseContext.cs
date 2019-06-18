@@ -4,36 +4,36 @@ using System.Collections.Generic;
 
 namespace DataBaseLibrary
 {
-    public class DataBaseInitializer : CreateDatabaseIfNotExists<DBContext>
+    public class DataBaseInitializer : CreateDatabaseIfNotExists<DataBaseContext>
     {
 
-        protected override void Seed(DBContext context)
+        protected override void Seed(DataBaseContext context)
         {
             // Инициализация базы данных при её создании
-            DBDefaultData DBDefaultData = new DBDefaultData();
-            List<MountingSite> mountingSites = DBDefaultData.GetMountingSites();
-            List<Area> areas = DBDefaultData.GetAreas();
-            List<Section> sections = DBDefaultData.GetSections();
-            List<Sphere> spheres = DBDefaultData.GetSpheres();
+            var dataBaseDefaultValue = new DataBaseDefaultValues();
+            var mountingSites = dataBaseDefaultValue.GetMountingSites();
+            var areas = dataBaseDefaultValue.GetAreas();
+            var sections = dataBaseDefaultValue.GetSections();
+            var spheres = dataBaseDefaultValue.GetSpheres();
 
-            foreach (MountingSite mountingSite in mountingSites)
+            for (int item = 0; item < mountingSites.Count; item++)
             {
-                context.MountingSites.Add(mountingSite);
+                context.MountingSites.Add(mountingSites[item]);
             }
 
-            for (int i = 0; i < areas.Count; i++)
+            for (int item = 0; item < areas.Count; item++)
             {
-                context.Areas.Add(areas[i]);
+                context.Areas.Add(areas[item]);
             }
 
-            for (int i = 0; i < sections.Count; i++)
+            for (int item = 0; item < sections.Count; item++)
             {
-                context.Sections.Add(sections[i]);
+                context.Sections.Add(sections[item]);
             }
 
-            for (int i = 0; i < spheres.Count; i++)
+            for (int item = 0; item < spheres.Count; item++)
             {
-                context.Spheres.Add(spheres[i]);
+                context.Spheres.Add(spheres[item]);
             }
 
             context.SaveChanges();
@@ -42,16 +42,16 @@ namespace DataBaseLibrary
 
     }
 
-    public class DBContext : DbContext
+    public class DataBaseContext : DbContext
     {
-        public DBContext() : base()
+        public DataBaseContext() : base()
         {
-            Database.SetInitializer<DBContext>(new DataBaseInitializer());
+            Database.SetInitializer<DataBaseContext>(new DataBaseInitializer());
         }
 
-        public DBContext(string nameOrConnectionString) : base(nameOrConnectionString)
+        public DataBaseContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
-            Database.SetInitializer<DBContext>(new DataBaseInitializer());
+            Database.SetInitializer<DataBaseContext>(new DataBaseInitializer());
         }
 
         public DbSet<PArticle> PArticles { get; set; } // Изделия

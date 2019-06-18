@@ -9,13 +9,13 @@ using Eplan.EplAddin.SpecificationListOfObjects;
 
 namespace Eplan.EplAddin.SpecificationOfProjects
 {
-    public class FunctionsManager
+    public class Functions
     {
         // Путь к надстройке
-        string[] originalAssemblypath = AddInModule.m_strOriginalAssemblyPath.Split('\\');
+        string[] originalAssemblypath = AddInModule.originalAssemblyPath.Split('\\');
         
         // Название файла конфигурации
-        string configFileName = @"SpecificationOfProjectsAddInConfig.ini";
+        string configFileName = @"DataBaseConnectionConfig.ini";
         
         // Строка подключения
         string connectionString = @"";
@@ -23,10 +23,12 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Получение полного пути к файлу настроек
         public string GetConfigFilePath()
         {
-            string path = @"";
-            for (int i = 0; i < originalAssemblypath.Length - 1; i++)
+            var sourceStart = 0;
+            var sourceEnd = originalAssemblypath.Length - 1;
+            var path = @"";
+            for (int source = sourceStart; source < sourceEnd; source++)
             {
-                path += originalAssemblypath[i].ToString() + "\\";
+                path += originalAssemblypath[source].ToString() + "\\";
             }
             path += configFileName;
             return path;
@@ -35,9 +37,9 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция проверки ini файла надстройки
         public void chekAddInIniFile()
         {
-            string configFilePath = GetConfigFilePath();
+            var configFilePath = GetConfigFilePath();
             // Обращаемся к INI файлу
-            ConfigIniFile iniFile = new ConfigIniFile(configFilePath);
+            var iniFile = new ConfigIniFile(configFilePath);
 
             if (iniFile.KeyExists("Data_Source", "Config"))
             {
@@ -45,8 +47,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 connectionString += "Data Source=" + iniProperty.ToString() + ";";
             }
             else
-            {      
-                BaseException iniErr = new BaseException("Ошибка в конфигурационном файле надстройки, нет Data Souce",MessageLevel.Error);
+            {
+                var iniErr = new BaseException("Ошибка в конфигурационном файле надстройки, нет Data Souce",MessageLevel.Error);
                 throw iniErr;
             }
 
@@ -57,7 +59,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             }
             else
             {
-                BaseException iniErr = new BaseException("Ошибка в конфигурационном файле надстройки, нет InitialCatalog", MessageLevel.Error);
+                var iniErr = new BaseException("Ошибка в конфигурационном файле надстройки, нет InitialCatalog", MessageLevel.Error);
                 throw iniErr;
             }
 
@@ -265,61 +267,60 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         {
             try
             {
-                SelectionSet selectionSetProject = new SelectionSet();
-                Project project = selectionSetProject.GetCurrentProject(true);
+                var selectionSetProject = new SelectionSet();
+                var project = selectionSetProject.GetCurrentProject(true);
                 if (project == null) // Проверяем, получили или нет проект
                 {
-                    BaseException projectIsNull = new BaseException("Проект пуст (функция GetProject)", MessageLevel.Error);
+                    var projectIsNull = new BaseException("Проект пуст (функция GetProject)", MessageLevel.Error);
                     throw projectIsNull;
                 }
                 return project;
             }
             catch
             {
-                BaseException projectErr = new BaseException("Ошибка в функции GetProject", MessageLevel.Error);
+                var projectErr = new BaseException("Ошибка в функции GetProject", MessageLevel.Error);
                 throw projectErr;
             }
         }
 
-        // Функция получения ссылок в проекте
+        // Функция получения ссылок на изделия в проекте
         public ArticleReference[] GetArticleReferences(Project project)
         {
             try
             {
-                DMObjectsFinder objectFinder = new DMObjectsFinder(project);
-                ArticleReference[] articleReferences = objectFinder.GetArticleReferences(null);
+                var objectFinder = new DMObjectsFinder(project);
+                var articleReferences = objectFinder.GetArticleReferences(null);
                 if (articleReferences.Length < 1) // Если ссылок нет
                 {
-                    BaseException articleReferencesIsNull = new BaseException("Ссылки ArticleReferences пусты! (функция GetArticleReferences)", MessageLevel.Error);
+                    var articleReferencesIsNull = new BaseException("Ссылки ArticleReferences пусты! (функция GetArticleReferences)", MessageLevel.Error);
                     throw articleReferencesIsNull;
                 }
                 return articleReferences;
             }
             catch
             {
-                BaseException articleReferencesErr = new BaseException("Ошибка в функции GetArticleReferences", MessageLevel.Error);
+                var articleReferencesErr = new BaseException("Ошибка в функции GetArticleReferences", MessageLevel.Error);
                 throw articleReferencesErr;
             }
         }
 
-        // Функция фильтрации ссылок по необходимым параметрам
+        // Функция фильтрации ссылок на изделия по необходимым параметрам
         public List<ArticleReference> FilterArticleReferences(ArticleReference[] articleReferences)
         {
             try
             {
-                List<ArticleReference> filteredArticleReferences = new List<ArticleReference>();
+                var filteredArticleReferences = new List<ArticleReference>();
                 foreach (ArticleReference reference in articleReferences)
                 {
                     // Example: +CAB5-F8 || +CAB1-1-F8
-                    string[] splitedReferenceIdentifyingName = reference.IdentifyingName.Split('-');
+                    var splitedReferenceIdentifyingName = reference.IdentifyingName.Split('-');
                     if (splitedReferenceIdentifyingName.Length > 1)
                     {
-                        string articleDeviceType = splitedReferenceIdentifyingName[1];
-                        string articleType = splitedReferenceIdentifyingName[0];
+                        var articleDeviceType = splitedReferenceIdentifyingName[1];
+                        var articleType = splitedReferenceIdentifyingName[0];
                         // Проверяем корректность, буква 'W' - кабели, они не нужны
                         // Ловим символ между CAB1 и F8 (пример), что бы понять, что пришло
-                        int fictiv;
-                        bool isDigit = int.TryParse(articleDeviceType.ToString(), out fictiv);
+                        var isDigit = int.TryParse(articleDeviceType.ToString(), out int fictiv);
                         if ((isDigit == false) && (fictiv < 100))
                         {
                             // Цифры нет, все штатно
@@ -342,507 +343,505 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 }
                 if (filteredArticleReferences.Count < 1) // Если список пуст
                 {
-                    BaseException filteredArticleReferencesListIsNull = new BaseException("Отфильтрованный список пуст! (функция FilterArticleReferences)", MessageLevel.Error);
+                    var filteredArticleReferencesListIsNull = new BaseException("Отфильтрованный список пуст! (функция FilterArticleReferences)", MessageLevel.Error);
                     throw filteredArticleReferencesListIsNull;
                 }
                 return filteredArticleReferences;
             }
             catch
             {
-                BaseException filterArticleReferencesErr = new BaseException("Ошибка в функции FilterArticleReferences", MessageLevel.Error);
+                var filterArticleReferencesErr = new BaseException("Ошибка в функции FilterArticleReferences", MessageLevel.Error);
                 throw filterArticleReferencesErr;
             }
         }
 
         // Функция получения имени изделия (одного)
-        public string GetProjectProductName(ArticleReference articleReference) // Получение имени изделия из IdefName для 1 ссылки
+        public string GetProjectArticleName(ArticleReference articleReference) // Получение имени изделия из IdentifyingName для 1 ссылки
         {
-            string productName = string.Empty;
+            var articleName = string.Empty;
             try
             {
                 // +CAB1-1-FQT1 - нештатно; +CAB1-FQT1 - штатно
                 // [0] +CAB1; [1] 1; [2] FQT1;
-                string[] mainStringSplit = articleReference.IdentifyingName.Split('-');
-                string[] noReadyName = mainStringSplit[0].Split('+');
-                int fictiv;
-                bool isDigit = int.TryParse(mainStringSplit[1].ToString(), out fictiv);
+                var mainStringSplit = articleReference.IdentifyingName.Split('-');
+                var noReadyName = mainStringSplit[0].Split('+');
+                var isDigit = int.TryParse(mainStringSplit[1].ToString(), out int fictiv);
                 if ((isDigit == false) && (fictiv < 100))
                 {
-                    productName = noReadyName[1];
+                    articleName = noReadyName[1];
                 }
                 else
                 {
-                    productName = noReadyName[1] + "-" + mainStringSplit[1].ToString();
+                    articleName = noReadyName[1] + "-" + mainStringSplit[1].ToString();
                 }
             }
             catch
             {
-                BaseException getProjProdNameExcept = new BaseException("Ошибка в функции GetProjectProductName", MessageLevel.Error);
+                var getProjProdNameExcept = new BaseException("Ошибка в функции GetProjectArticleName", MessageLevel.Error);
                 throw getProjProdNameExcept;
             }
-            if (productName == string.Empty)
+            if (articleName == string.Empty)
             {
-                BaseException productNameException = new BaseException("productName пусто! (функция GetProjectProductName)", MessageLevel.Error);
+                var productNameException = new BaseException("articleName пусто! (функция GetProjectArticleName)", MessageLevel.Error);
                 throw productNameException;
             }
-            return productName;
+            return articleName;
         }
 
         // Функция получения массива имен изделий, которые содержатся в проекте (шкаф,коагулятор и др)
         // Получу все изделия в т.ч с повторением
-        public string[] GetProjectProductNames(List<ArticleReference> articleReferences)
+        public string[] GetProjectArticlesNames(List<ArticleReference> articleReferences)
         {
-            string[] filteredProjectProductNames = new string[0];
+            var filteredProjectArticlesNames = new string[0];
             try
             {
-                string[] projectProductNames = new string[articleReferences.Count];
-                for (int i = 0; i < articleReferences.Count; i++)
+                var projectArticlesNames = new string[articleReferences.Count];
+                for (int item = 0; item < articleReferences.Count; item++)
                 {
-                    projectProductNames[i] = GetProjectProductName(articleReferences[i]);
+                    projectArticlesNames[item] = GetProjectArticleName(articleReferences[item]);
                 }
-                filteredProjectProductNames = projectProductNames.Distinct().ToArray();
+                filteredProjectArticlesNames = projectArticlesNames.Distinct().ToArray();
             }
             catch
             {
-                BaseException getProjectProductNamesException = new BaseException("Ошибка в функции GetProjectProductNames", MessageLevel.Error);
+                var getProjectProductNamesException = new BaseException("Ошибка в функции GetProjectArticlesNames", MessageLevel.Error);
                 throw getProjectProductNamesException;
             }
-            return filteredProjectProductNames;
+            return filteredProjectArticlesNames;
         }
 
         // Функция получения списка списков всех компонентов по каждому изделию
-        public List<List<string>> GetProductArticles(string[] projectProductNames, List<ArticleReference> articleReferences)
+        public List<List<string>> GetArticlesComponents(string[] projectArticlesNames, List<ArticleReference> articleReferences)
         {
             try
             {
                 // Первый список - соответствует string[] projectProductNames
-                // Второй - содержит элементы которые есть в projectProductNames
-                List<List<string>> productArticles = new List<List<string>>();
-                for (int i = 0; i < projectProductNames.Length; i++)
+                // articleReferences - содержит элементы которые есть в projectProductNames
+                var articlesComponents = new List<List<string>>();
+                for (int firstItem = 0; firstItem < projectArticlesNames.Length; firstItem++)
                 {
-                    List<string> secondList = new List<string>();
-                    for (int j = 0; j < articleReferences.Count; j++)
+                    var components = new List<string>();
+                    for (int secondItem = 0; secondItem < articleReferences.Count; secondItem++)
                     {
-                        if (projectProductNames[i] == GetProjectProductName(articleReferences[j]))
+                        if (projectArticlesNames[firstItem] == GetProjectArticleName(articleReferences[secondItem]))
                         {
                             try
                             {
-                                secondList.Add(articleReferences[j].Article.PartNr);
+                                components.Add(articleReferences[secondItem].Article.PartNr);
                             }
                             catch
                             {
-                                BaseException baseException = new BaseException("Ошибка во внутреннем списке (функция GetProductArticles)", MessageLevel.Error);
+                                var baseException = new BaseException("Ошибка во внутреннем списке (функция GetArticlesComponents)", MessageLevel.Error);
                                 throw baseException;
                             }
                         }
                     }
-                    secondList.Sort();
-                    productArticles.Add(secondList);
+                    components.Sort();
+                    articlesComponents.Add(components);
                 }
-                return productArticles;
+                return articlesComponents;
             }
             catch
             {
-                BaseException productArticlesErr = new BaseException("Ошибка в функции GetProductArticles", MessageLevel.Error);
+                var productArticlesErr = new BaseException("Ошибка в функции GetArticlesComponents", MessageLevel.Error);
                 throw productArticlesErr;
             }
         }
 
         // Функция получения количества каждого из компонентов в изделии
-        public List<List<ComponentInfo>> GetProductArticleCount(string[] projectProductNames, List<List<string>> productArticles)
+        public List<List<ComponentShortDescription>> GetArticleComponentsCount(string[] projectArticlesNames, List<List<string>> articleComponents)
         {
-            List<List<ComponentInfo>> productArticleInfo = new List<List<ComponentInfo>>();
-            for (int i = 0; i < projectProductNames.Length; i++)
+            var articleComponentsShortDesctiption = new List<List<ComponentShortDescription>>();
+            for (int item = 0; item < projectArticlesNames.Length; item++)
             {
-                string previouseElem = string.Empty;
-                string currentElem = string.Empty;
+                var previouseElem = string.Empty;
+                var currentElem = string.Empty;
                 try
                 {
-                    List<ComponentInfo> innerList = new List<ComponentInfo>();
-                    for (int j = 0; j < productArticles[i].Count; j++)
+                    var shortDescriptions = new List<ComponentShortDescription>();
+                    for (int innerItem = 0; innerItem < articleComponents[item].Count; innerItem++)
                     {
-                        currentElem = productArticles[i][j];
+                        currentElem = articleComponents[item][innerItem];
                         if (currentElem != previouseElem)
                         {
-                            ComponentInfo componentInfo = new ComponentInfo
+                            var componentShortDescription = new ComponentShortDescription
                             {
                                 Count = 0,
-                                PartNumber = productArticles[i][j]
+                                PartNumber = articleComponents[item][innerItem]
                             };
-                            for (int k = 0; k < productArticles[i].Count; k++)
+                            for (int componentNumber = 0; componentNumber < articleComponents[item].Count; componentNumber++)
                             {
-                                if (productArticles[i][k] == componentInfo.PartNumber)
+                                if (articleComponents[item][componentNumber] == componentShortDescription.PartNumber)
                                 {
-                                    componentInfo.Count++;
+                                    componentShortDescription.Count++;
                                 }
                             }
                             previouseElem = currentElem;
-                            innerList.Add(componentInfo);
+                            shortDescriptions.Add(componentShortDescription);
                         }
                     }
-                    productArticleInfo.Add(innerList);
+                    articleComponentsShortDesctiption.Add(shortDescriptions);
                 }
                 catch
                 {
-                    BaseException ProdArticleCountErr = new BaseException("Ошибка в функции GetProductArticleCount", MessageLevel.Error);
+                    var ProdArticleCountErr = new BaseException("Ошибка в функции GetArticleComponentsCount", MessageLevel.Error);
                     throw ProdArticleCountErr;
                 }
             }
-            return productArticleInfo;
+            return articleComponentsShortDesctiption;
         }
 
         // Функция получения cписка компонентов в проекте
-        public Article[] GetProjectProductArticleList(Project project, List<ArticleReference> articleReferences)
+        public Article[] GetProjectComponents(Project project, List<ArticleReference> articleReferences)
         {
             try
             {
                 // Инициализация
-                string[] articleStrNames = new string[0];
-                string[] countOfReferences = new string[articleReferences.Count];
+                var componentsNames = new string[0];
+                var componentsReferences = new string[articleReferences.Count];
                 // Записываю все PartNr компонентов в массив
-                for (int i = 0; i < articleReferences.Count; i++)
+                for (int item = 0; item < articleReferences.Count; item++)
                 {
-                    countOfReferences[i] = articleReferences[i].PartNr;
+                    componentsReferences[item] = articleReferences[item].PartNr;
                 }
                 // Убираю повторения и сортирую
-                articleStrNames = countOfReferences.Distinct().ToArray();
-                Array.Sort(articleStrNames);
+                componentsNames = componentsReferences.Distinct().ToArray();
+                Array.Sort(componentsNames);
                 // Получаю данные по каждому из компонентов в массиве
-                Article[] ProductArticleList = new Article[articleStrNames.Length];
-                Article[] AllProductArticlesInproject = project.Articles;
-                for (int i = 0; i < articleStrNames.Length; i++)
+                var projectComponents = new Article[componentsNames.Length];
+                var allComponentsInProject = project.Articles;
+                for (int firstCounter = 0; firstCounter < componentsNames.Length; firstCounter++)
                 {
-                    for (int j = 0; j < AllProductArticlesInproject.Length; j++)
+                    for (int secondCounter = 0; secondCounter < allComponentsInProject.Length; secondCounter++)
                     {
-                        if (articleStrNames[i] == AllProductArticlesInproject[j].PartNr)
+                        if (componentsNames[firstCounter] == allComponentsInProject[secondCounter].PartNr)
                         {
-                            ProductArticleList[i] = AllProductArticlesInproject[j];
+                            projectComponents[firstCounter] = allComponentsInProject[secondCounter];
                         }
                     }
                 }
-                return ProductArticleList;
+                return projectComponents;
             }
             catch
             {
-                BaseException ProjArticleListErr = new BaseException("Ошибка в функции GetProjectArticleList", MessageLevel.Error);
+                var ProjArticleListErr = new BaseException("Ошибка в функции GetProjectComponents", MessageLevel.Error);
                 throw ProjArticleListErr;
             }
-
         }
 
         // Функция получения свойств компонентов для справочника
-        public ComponentCatalogInfo[] GetArticleProperties(Article[] articles)
+        public ComponentsFullDescription[] GetComponentsProperties(Article[] articles)
         {
             try
             {
-                ComponentCatalogInfo[] componentCatalogInfos = new ComponentCatalogInfo[articles.Length];
-                for (int i = 0; i < componentCatalogInfos.Length; i++)
+                var componentCatalogInfos = new ComponentsFullDescription[articles.Length];
+                for (int item = 0; item < componentCatalogInfos.Length; item++)
                 {
-                    MultiLangString langString; // Для получения строк по языку
-                    componentCatalogInfos[i] = new ComponentCatalogInfo();
-                    componentCatalogInfos[i].PartNumber = articles[i].Properties.ARTICLE_PARTNR.ToString();
+                    var langString = new MultiLangString(); // Для получения строк по языку
+                    componentCatalogInfos[item] = new ComponentsFullDescription();
+                    componentCatalogInfos[item].PartNumber = articles[item].Properties.ARTICLE_PARTNR.ToString();
 
-                    if (articles[i].Properties.ARTICLE_TYPENR.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_TYPENR.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].TypeNumber = articles[i].Properties.ARTICLE_TYPENR;
+                        componentCatalogInfos[item].TypeNumber = articles[item].Properties.ARTICLE_TYPENR;
                     }
                     else
                     {
-                        componentCatalogInfos[i].TypeNumber = null;
+                        componentCatalogInfos[item].TypeNumber = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_ORDERNR.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_ORDERNR.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].OrderNumber = articles[i].Properties.ARTICLE_ORDERNR;
+                        componentCatalogInfos[item].OrderNumber = articles[item].Properties.ARTICLE_ORDERNR;
 
                     }
                     else
                     {
-                        componentCatalogInfos[i].OrderNumber = null;
+                        componentCatalogInfos[item].OrderNumber = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_MANUFACTURER.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_MANUFACTURER.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].ManufacturerSmallName = articles[i].Properties.ARTICLE_MANUFACTURER;
+                        componentCatalogInfos[item].ManufacturerSmallName = articles[item].Properties.ARTICLE_MANUFACTURER;
                     }
                     else
                     {
-                        componentCatalogInfos[i].ManufacturerSmallName = null;
+                        componentCatalogInfos[item].ManufacturerSmallName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_MANUFACTURER_NAME.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_MANUFACTURER_NAME.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].ManufacturerFullName = articles[i].Properties.ARTICLE_MANUFACTURER_NAME;
+                        componentCatalogInfos[item].ManufacturerFullName = articles[item].Properties.ARTICLE_MANUFACTURER_NAME;
                     }
                     else
                     {
-                        componentCatalogInfos[i].ManufacturerFullName = null;
+                        componentCatalogInfos[item].ManufacturerFullName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_SUPPLIER.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_SUPPLIER.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].SupplierSmallName = articles[i].Properties.ARTICLE_SUPPLIER;
+                        componentCatalogInfos[item].SupplierSmallName = articles[item].Properties.ARTICLE_SUPPLIER;
                     }
                     else
                     {
-                        componentCatalogInfos[i].SupplierSmallName = null;
+                        componentCatalogInfos[item].SupplierSmallName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_SUPPLIER_NAME.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_SUPPLIER_NAME.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].SupplierFullName = articles[i].Properties.ARTICLE_SUPPLIER_NAME;
+                        componentCatalogInfos[item].SupplierFullName = articles[item].Properties.ARTICLE_SUPPLIER_NAME;
                     }
                     else
                     {
-                        componentCatalogInfos[i].SupplierFullName = null;
+                        componentCatalogInfos[item].SupplierFullName = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_DESCR1.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_DESCR1.IsEmpty == false)
                     {
-                        langString = articles[i].Properties.ARTICLE_DESCR1;
-                        componentCatalogInfos[i].Description1 = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
+                        langString = articles[item].Properties.ARTICLE_DESCR1;
+                        componentCatalogInfos[item].Description1 = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
                     }
                     else
                     {
-                        componentCatalogInfos[i].Description1 = null;
+                        componentCatalogInfos[item].Description1 = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_DESCR2.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_DESCR2.IsEmpty == false)
                     {
-                        langString = articles[i].Properties.ARTICLE_DESCR2;
-                        componentCatalogInfos[i].Description2 = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
+                        langString = articles[item].Properties.ARTICLE_DESCR2;
+                        componentCatalogInfos[item].Description2 = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
                     }
                     else
                     {
-                        componentCatalogInfos[i].Description2 = null;
+                        componentCatalogInfos[item].Description2 = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_CHARACTERISTICS.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_CHARACTERISTICS.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].TechnicalCharacteristics = articles[i].Properties.ARTICLE_CHARACTERISTICS;
+                        componentCatalogInfos[item].TechnicalCharacteristics = articles[item].Properties.ARTICLE_CHARACTERISTICS;
                     }
                     else
                     {
-                        componentCatalogInfos[i].TechnicalCharacteristics = null;
+                        componentCatalogInfos[item].TechnicalCharacteristics = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_NOTE.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_NOTE.IsEmpty == false)
                     {
-                        langString = articles[i].Properties.ARTICLE_NOTE;
-                        componentCatalogInfos[i].Note = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
+                        langString = articles[item].Properties.ARTICLE_NOTE;
+                        componentCatalogInfos[item].Note = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
                     }
                     else
                     {
-                        componentCatalogInfos[i].Note = null;
+                        componentCatalogInfos[item].Note = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_CROSSSECTIONFROM.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_CROSSSECTIONFROM.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].TerminalCrossSectionFrom = articles[i].Properties.ARTICLE_CROSSSECTIONFROM;
+                        componentCatalogInfos[item].TerminalCrossSectionFrom = articles[item].Properties.ARTICLE_CROSSSECTIONFROM;
                     }
                     else
                     {
-                        componentCatalogInfos[i].TerminalCrossSectionFrom = null;
+                        componentCatalogInfos[item].TerminalCrossSectionFrom = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_CROSSSECTIONTILL.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_CROSSSECTIONTILL.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].TerminalCrossSectionTo = articles[i].Properties.ARTICLE_CROSSSECTIONTILL;
+                        componentCatalogInfos[item].TerminalCrossSectionTo = articles[item].Properties.ARTICLE_CROSSSECTIONTILL;
                     }
                     else
                     {
-                        componentCatalogInfos[i].TerminalCrossSectionTo = null;
+                        componentCatalogInfos[item].TerminalCrossSectionTo = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_ELECTRICALCURRENT.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_ELECTRICALCURRENT.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].ElectricalCurrent = articles[i].Properties.ARTICLE_ELECTRICALCURRENT;
+                        componentCatalogInfos[item].ElectricalCurrent = articles[item].Properties.ARTICLE_ELECTRICALCURRENT;
                     }
                     else
                     {
-                        componentCatalogInfos[i].ElectricalCurrent = null;
+                        componentCatalogInfos[item].ElectricalCurrent = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_ELECTRICALPOWER.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_ELECTRICALPOWER.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].ElectricalSwitchingCapacity = articles[i].Properties.ARTICLE_ELECTRICALPOWER;
+                        componentCatalogInfos[item].ElectricalSwitchingCapacity = articles[item].Properties.ARTICLE_ELECTRICALPOWER;
                     }
                     else
                     {
-                        componentCatalogInfos[i].ElectricalSwitchingCapacity = null;
+                        componentCatalogInfos[item].ElectricalSwitchingCapacity = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_VOLTAGE.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_VOLTAGE.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].Voltage = articles[i].Properties.ARTICLE_VOLTAGE;
+                        componentCatalogInfos[item].Voltage = articles[item].Properties.ARTICLE_VOLTAGE;
                     }
                     else
                     {
-                        componentCatalogInfos[i].Voltage = null;
+                        componentCatalogInfos[item].Voltage = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_VOLTAGETYPE.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_VOLTAGETYPE.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].VoltageType = articles[i].Properties.ARTICLE_VOLTAGETYPE;
+                        componentCatalogInfos[item].VoltageType = articles[item].Properties.ARTICLE_VOLTAGETYPE;
                     }
                     else
                     {
-                        componentCatalogInfos[i].VoltageType = null;
+                        componentCatalogInfos[item].VoltageType = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_HEIGHT.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_HEIGHT.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].Height = articles[i].Properties.ARTICLE_HEIGHT;
+                        componentCatalogInfos[item].Height = articles[item].Properties.ARTICLE_HEIGHT;
                     }
                     else
                     {
-                        componentCatalogInfos[i].Height = 0;
+                        componentCatalogInfos[item].Height = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_WIDTH.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_WIDTH.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].Width = articles[i].Properties.ARTICLE_WIDTH.ToDouble();
+                        componentCatalogInfos[item].Width = articles[item].Properties.ARTICLE_WIDTH.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].Width = 0;
+                        componentCatalogInfos[item].Width = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_DEPTH.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_DEPTH.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].Depth = articles[i].Properties.ARTICLE_DEPTH.ToDouble();
+                        componentCatalogInfos[item].Depth = articles[item].Properties.ARTICLE_DEPTH.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].Depth = 0;
+                        componentCatalogInfos[item].Depth = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_WEIGHT.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_WEIGHT.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].Weight = articles[i].Properties.ARTICLE_WEIGHT.ToDouble();
+                        componentCatalogInfos[item].Weight = articles[item].Properties.ARTICLE_WEIGHT.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].Weight = 0;
+                        componentCatalogInfos[item].Weight = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_MOUNTINGSITE.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_MOUNTINGSITE.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].MountingSiteID = articles[i].Properties.ARTICLE_MOUNTINGSITE;
+                        componentCatalogInfos[item].MountingSiteID = articles[item].Properties.ARTICLE_MOUNTINGSITE;
                     }
                     else
                     {
-                        componentCatalogInfos[i].MountingSiteID = 0;
+                        componentCatalogInfos[item].MountingSiteID = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_MOUNTINGSPACE.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_MOUNTINGSPACE.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].MountingSpace = articles[i].Properties.ARTICLE_MOUNTINGSPACE.ToDouble();
+                        componentCatalogInfos[item].MountingSpace = articles[item].Properties.ARTICLE_MOUNTINGSPACE.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].MountingSpace = 0;
+                        componentCatalogInfos[item].MountingSpace = 0;
                     }
 
-                    componentCatalogInfos[i].PartGroup = GetPartGroup(articles[i]); // 0-00-000
+                    componentCatalogInfos[item].PartGroup = GetPartGroup(articles[item]); // 0-00-000
 
-                    if (articles[i].Properties.ARTICLE_QUANTITYUNIT.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_QUANTITYUNIT.IsEmpty == false)
                     {
-                        langString = articles[i].Properties.ARTICLE_QUANTITYUNIT;
-                        string filterString = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU).Trim();
-                        componentCatalogInfos[i].QuantityUnit = filterString;
+                        langString = articles[item].Properties.ARTICLE_QUANTITYUNIT;
+                        var filterString = langString.GetStringToDisplay(ISOCode.Language.L_ru_RU).Trim();
+                        componentCatalogInfos[item].QuantityUnit = filterString;
                     }
                     else
                     {
-                        componentCatalogInfos[i].QuantityUnit = null;
+                        componentCatalogInfos[item].QuantityUnit = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_PACKAGINGQUANTITY.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_PACKAGINGQUANTITY.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].PackagingQuantity = articles[i].Properties.ARTICLE_PACKAGINGQUANTITY.ToDouble();
+                        componentCatalogInfos[item].PackagingQuantity = articles[item].Properties.ARTICLE_PACKAGINGQUANTITY.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].PackagingQuantity = 0;
+                        componentCatalogInfos[item].PackagingQuantity = 0;
                     }
 
-                    if (articles[i].Properties.PART_LASTCHANGE.IsEmpty == false)
+                    if (articles[item].Properties.PART_LASTCHANGE.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].LastChange = articles[i].Properties.PART_LASTCHANGE;
+                        componentCatalogInfos[item].LastChange = articles[item].Properties.PART_LASTCHANGE;
                     }
                     else
                     {
-                        componentCatalogInfos[i].LastChange = null;
+                        componentCatalogInfos[item].LastChange = null;
                     }
 
-                    if (articles[i].Properties.ARTICLE_SALESPRICE_1.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_SALESPRICE_1.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].SalesPrice1 = articles[i].Properties.ARTICLE_SALESPRICE_1.ToDouble();
+                        componentCatalogInfos[item].SalesPrice1 = articles[item].Properties.ARTICLE_SALESPRICE_1.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].SalesPrice1 = 0;
+                        componentCatalogInfos[item].SalesPrice1 = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_SALESPRICE_2.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_SALESPRICE_2.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].SalesPrice2 = articles[i].Properties.ARTICLE_SALESPRICE_2.ToDouble();
+                        componentCatalogInfos[item].SalesPrice2 = articles[item].Properties.ARTICLE_SALESPRICE_2.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].SalesPrice2 = 0;
+                        componentCatalogInfos[item].SalesPrice2 = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_PURCHASEPRICE_1.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_PURCHASEPRICE_1.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].PurchasePrice1 = articles[i].Properties.ARTICLE_PURCHASEPRICE_1.ToDouble();
+                        componentCatalogInfos[item].PurchasePrice1 = articles[item].Properties.ARTICLE_PURCHASEPRICE_1.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].PurchasePrice1 = 0;
+                        componentCatalogInfos[item].PurchasePrice1 = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_PURCHASEPRICE_2.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_PURCHASEPRICE_2.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].PurchasePrice2 = articles[i].Properties.ARTICLE_PURCHASEPRICE_2.ToDouble();
+                        componentCatalogInfos[item].PurchasePrice2 = articles[item].Properties.ARTICLE_PURCHASEPRICE_2.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].PurchasePrice2 = 0;
+                        componentCatalogInfos[item].PurchasePrice2 = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_PACKAGINGPRICE_1.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_PACKAGINGPRICE_1.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].PackagingPrice1 = articles[i].Properties.ARTICLE_PACKAGINGPRICE_1.ToDouble();
+                        componentCatalogInfos[item].PackagingPrice1 = articles[item].Properties.ARTICLE_PACKAGINGPRICE_1.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].PackagingPrice1 = 0;
+                        componentCatalogInfos[item].PackagingPrice1 = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_PACKAGINGPRICE_2.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_PACKAGINGPRICE_2.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].PackagingPrice2 = articles[i].Properties.ARTICLE_PACKAGINGPRICE_2.ToDouble();
+                        componentCatalogInfos[item].PackagingPrice2 = articles[item].Properties.ARTICLE_PACKAGINGPRICE_2.ToDouble();
                     }
                     else
                     {
-                        componentCatalogInfos[i].PackagingPrice2 = 0;
+                        componentCatalogInfos[item].PackagingPrice2 = 0;
                     }
 
-                    if (articles[i].Properties.ARTICLE_PRICEUNIT.IsEmpty == false)
+                    if (articles[item].Properties.ARTICLE_PRICEUNIT.IsEmpty == false)
                     {
-                        componentCatalogInfos[i].PriceUnit = articles[i].Properties.ARTICLE_PRICEUNIT;
+                        componentCatalogInfos[item].PriceUnit = articles[item].Properties.ARTICLE_PRICEUNIT;
                     }
                     else
                     {
-                        componentCatalogInfos[i].PriceUnit = 0;
+                        componentCatalogInfos[item].PriceUnit = 0;
                     }
                 }
                 return componentCatalogInfos;
             }
             catch
             {
-                BaseException ArtPropErr = new BaseException("Ошибка в функции GetArticleProperties", MessageLevel.Error);
+                var ArtPropErr = new BaseException("Ошибка в функции GetComponentsProperties", MessageLevel.Error);
                 throw ArtPropErr;
             }
         }
@@ -853,7 +852,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             try
             {
                 // Распарсили группы и получили "дерево"
-                string partGroup = String.Format("{0:0}-{1:00}-{2:000}",
+                var partGroup = String.Format("{0:0}-{1:00}-{2:000}",
                 article.Properties.ARTICLE_PRODUCTTOPGROUP.ToInt(),
                 article.Properties.ARTICLE_PRODUCTGROUP.ToInt(),
                 article.Properties.ARTICLE_PRODUCTSUBGROUP.ToInt());
@@ -861,31 +860,25 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             }
             catch
             {
-                BaseException GetPartGroupErr = new BaseException("Ошибка в функции GetPartGroup", MessageLevel.Error);
+                var GetPartGroupErr = new BaseException("Ошибка в функции GetPartGroup", MessageLevel.Error);
                 throw GetPartGroupErr;
             }
         }
 
         // Функция записи данных в справочник
-        public void FillComponentCatalog(ComponentCatalogInfo[] componentCatalogInfos)
+        public void FillComponentCatalog(ComponentsFullDescription[] componentCatalogInfos)
         {
-            using (DBContext DBCon = new DBContext(connectionString))
+            using (DataBaseContext DBCon = new DataBaseContext(connectionString))
             {
-                // Если БД нет - создать и инициализировать
-                //if (!DBCon.Database.Exists())
-                //{
-                //    DBCon.Database.Initialize(false);
-                //}
-
-                foreach (ComponentCatalogInfo componentCatalogInfo in componentCatalogInfos)
+                foreach (ComponentsFullDescription componentCatalogInfo in componentCatalogInfos)
                 {
                     // Если в справочнике количество таких PartNumber = 0 (нет таких), то пишем в справочник
                     if (DBCon.ComponentCatalogs.Where(o => o.PartNumber == componentCatalogInfo.PartNumber).Count() < 1)
                     {
-                        PriceList priceList = new PriceList(); // Для прайса
-                        ComponentCatalog componentCatalog = new ComponentCatalog(); // Для свойств
-                        QuantityUnit quantityUnit = new QuantityUnit(); // Для ед. измерения
-                        MountingSite mountingSite; // Для монтажной поверхности
+                        var priceList = new PriceList(); // Для прайса
+                        var componentCatalog = new ComponentCatalog(); // Для свойств
+                        var quantityUnit = new QuantityUnit(); // Для ед. измерения
+                        var mountingSite = new MountingSite(); // Для монтажной поверхности
 
                         // Обработка QuantityUnit для получения ID
                         try
@@ -919,7 +912,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                         catch
                         {
-                            BaseException QuantityUnitCheckErr = new BaseException("Ошибка в преобразовании и поиске QuantityUnitID", MessageLevel.Error);
+                            var QuantityUnitCheckErr = new BaseException("Ошибка в преобразовании и поиске QuantityUnitID", MessageLevel.Error);
                             throw QuantityUnitCheckErr;
                         }
 
@@ -934,7 +927,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                         catch
                         {
-                            BaseException mountingSiteErr = new BaseException("Ошибка в поиске и преобразовании MountingSiteID", MessageLevel.Error);
+                            var mountingSiteErr = new BaseException("Ошибка в поиске и преобразовании MountingSiteID", MessageLevel.Error);
                             throw mountingSiteErr;
                         }
 
@@ -969,7 +962,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                         catch
                         {
-                            BaseException comCatErr = new BaseException("Ошибка в присваивании данных ComponentCatalog", MessageLevel.Error);
+                            var comCatErr = new BaseException("Ошибка в присваивании данных ComponentCatalog", MessageLevel.Error);
                             throw comCatErr;
                         }
 
@@ -981,7 +974,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                         catch
                         {
-                            BaseException comCatAddErr = new BaseException("Ошибка в добавлении и сохранении ComponentCatalog в БД", MessageLevel.Error);
+                            var comCatAddErr = new BaseException("Ошибка в добавлении и сохранении ComponentCatalog в БД", MessageLevel.Error);
                             throw comCatAddErr;
                         }
 
@@ -1002,7 +995,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                         catch
                         {
-                            BaseException PriceListErr = new BaseException("Ошибка в записи прайс-листа после добавления нового компонента в справочник", MessageLevel.Error);
+                            var PriceListErr = new BaseException("Ошибка в записи прайс-листа после добавления нового компонента в справочник", MessageLevel.Error);
                             throw PriceListErr;
                         }
                     }
@@ -1012,11 +1005,11 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         try
                         {
                             // Получаю последний прайс объекта
-                            List<PriceList> prisesForCheck = DBCon.PriceLists.Where(
+                            var prisesForCheck = DBCon.PriceLists.Where(
                                 o => o.PartNumber == componentCatalogInfo.PartNumber).OrderBy(
                                 o1 => o1.LastChange).ToList();
-                            PriceList lastPriceList = prisesForCheck.Last();
-                            bool priseIsChanged = false; // Флаг на изменение прайса
+                            var lastPriceList = prisesForCheck.Last();
+                            var priseIsChanged = false; // Флаг на изменение прайса
                             // Проверяю, отличается хотя бы один прайс от того, что есть
                             if (lastPriceList.PackagingPrice1 != componentCatalogInfo.PackagingPrice1) priseIsChanged = true;
                             if (lastPriceList.PackagingPrice2 != componentCatalogInfo.PackagingPrice2) priseIsChanged = true;
@@ -1029,7 +1022,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                             // Если все таки у нас есть изменения, добавляем их в справочник прайсов
                             if (priseIsChanged == true)
                             {
-                                PriceList updPriseList = new PriceList();
+                                var updPriseList = new PriceList();
                                 updPriseList.PartNumber = componentCatalogInfo.PartNumber;
                                 updPriseList.LastChange = DateTime.Now;
                                 updPriseList.PackagingPrice1 = componentCatalogInfo.PackagingPrice1;
@@ -1045,7 +1038,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         }
                         catch
                         {
-                            BaseException checkPriseListErr = new BaseException("Ошибка при проверке прайс-листов", MessageLevel.Error);
+                            var checkPriseListErr = new BaseException("Ошибка при проверке прайс-листов", MessageLevel.Error);
                             throw checkPriseListErr;
                         }
                     }
@@ -1059,25 +1052,31 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             try
             {
                 // "TSAM / 2010.10.03 10:09:44", поэтому нужна вторая часть строки
-                string[] splittedStr = strForParse.Split('/');
-                string strForConvert = splittedStr[1].Trim();
-                DateTime gettedDateTime = Convert.ToDateTime(strForConvert);
+                var splittedStr = strForParse.Split('/');
+                var strForConvert = splittedStr[1].Trim();
+                var gettedDateTime = Convert.ToDateTime(strForConvert);
                 return gettedDateTime;
             }
             catch
             {
-                BaseException dateTimeFromStrErr = new BaseException("Ошибка в функции GetDateTimeFromString", MessageLevel.Error);
+                var dateTimeFromStrErr = new BaseException("Ошибка в функции GetDateTimeFromString", MessageLevel.Error);
                 throw dateTimeFromStrErr;
             }
         }
 
         // Функция записи данных спецификации в БД
-        public void FillSpecification(string[] projectProductNames, List<List<ComponentInfo>> specificationInfo, string projName, List<LocationInfo> locationInfos)
+        public void FillSpecification(string[] projectArticlesNames, List<List<ComponentShortDescription>> сomponentShortDescriptions, List<StructuralDescription> structuralDescriptions)
         {
-            using (DBContext DBCon = new DBContext(connectionString))
+            using (DataBaseContext DBCon = new DataBaseContext(connectionString))
             {
-                Proj project = new Proj(); // Модель объекта
-                project.Name = projName;
+                var selectionSetProject = new SelectionSet();
+                var currentProject = selectionSetProject.GetCurrentProject(true);
+
+                var project = new Proj(); // Модель объекта
+                project.Name = currentProject.ProjectName;
+                project.Executor = currentProject.Properties.PROJ_CREATOR;
+                project.DateTime = currentProject.Properties.PROJ_PROJECTBEGIN;
+
                 // Проверяю, есть ли у нас такой проект уже
                 if (DBCon.Projs.Where(o => o.Name == project.Name).Count() == 0)
                 {
@@ -1089,72 +1088,72 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     catch
                     {
-                        BaseException projAddErr = new BaseException("Ошибка при добавлении проекта в БД (Функция FillSpecification)", MessageLevel.Error);
+                        var projAddErr = new BaseException("Ошибка при добавлении проекта в БД (Функция FillSpecification)", MessageLevel.Error);
                         throw projAddErr;
                     }
 
                     try
                     {
                         // Теперь добавляю изделия из проекта
-                        int projID = DBCon.Projs.Where(
+                        var projID = DBCon.Projs.Where(
                             o => o.Name == project.Name)
                             .Select(o1 => o1.ProjID).FirstOrDefault();
-                        foreach (string articleName in projectProductNames)
+                        foreach (string articleName in projectArticlesNames)
                         {
                             // Для поиска описания изделия
-                            LocationDescription locationInfo = new LocationDescription();
-                            PArticle projArticle = new PArticle(); // Моделька объекта
+                            var location = new LocationDescription();
+                            var projArticle = new PArticle(); // Моделька объекта
                             // Ищу, есть ли такое имя в таблице имен
-                            locationInfo = DBCon.LocationDescriptions.Where(
+                            location = DBCon.LocationDescriptions.Where(
                                 o => o.Name == articleName).FirstOrDefault();
-                            if (locationInfo == null)
+                            if (location == null)
                             {
-                                locationInfo = new LocationDescription();
-                                locationInfo.Name = articleName;
+                                location = new LocationDescription();
+                                location.Name = articleName;
                                 try
                                 {   // Если не найдено описание такого элемента, то ошибка
-                                    locationInfo.Description = locationInfos.Find(o => o.Name == articleName).Description;
+                                    location.Description = structuralDescriptions.Find(o => o.Name == articleName).Description;
                                 }
                                 catch
                                 {
                                     // Description = Name, ставим описание равным имени
-                                    locationInfo.Description = locationInfo.Name;
+                                    location.Description = location.Name;
                                 }
-                                DBCon.LocationDescriptions.Add(locationInfo);
+                                DBCon.LocationDescriptions.Add(location);
                                 DBCon.SaveChanges();
-                                locationInfo = DBCon.LocationDescriptions.Where(
+                                location = DBCon.LocationDescriptions.Where(
                                 o => o.Name == articleName).FirstOrDefault();
-                                projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
-                                locationInfo = null;
+                                projArticle.LocationDesriptionID = location.LocationDescriptionID;
+                                location = null;
                             }
                             else
                             {
                                 // Если обозначение есть, проверяю равняется ли его имя и описание
-                                string locationName = locationInfo.Name;
-                                string locationDescription = locationInfo.Description;
+                                var locationName = location.Name;
+                                var locationDescription = location.Description;
                                 if (locationName.Equals(locationDescription) == true)
                                 {
                                     try
                                     {
                                         // Получаю описание текущего изделия (структурное обозначение)
-                                        string currentLocationDescription = locationInfos.Find(o => o.Name == articleName).Description;
+                                        var currentLocationDescription = structuralDescriptions.Find(o => o.Name == articleName).Description;
                                         // Если сработало без ошибок, обновляю его
-                                        locationInfo.Description = currentLocationDescription;
+                                        location.Description = currentLocationDescription;
                                         DBCon.SaveChanges();
                                         // И присваиваю ID projArticle
-                                        projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                        projArticle.LocationDesriptionID = location.LocationDescriptionID;
                                     }
                                     catch
                                     {
                                         // Если ошибка, то значит изделие все равно без описания структурного
                                         // Значит, оставляем сопоставление Name = Description
-                                        projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                        projArticle.LocationDesriptionID = location.LocationDescriptionID;
                                     }
                                 }
                                 else
                                 {
                                     // Если же описание и имя обозначений разные (введено корректное описание)
-                                    projArticle.LocationDesriptionID = locationInfo.LocationDescriptionID;
+                                    projArticle.LocationDesriptionID = location.LocationDescriptionID;
                                 }
                             }
                             projArticle.ProjectID = projID;
@@ -1164,41 +1163,41 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     catch
                     {
-                        BaseException articleAddErr = new BaseException("Ошибка при добавлении изделий в БД (Функция FillSpecification)", MessageLevel.Error);
+                        var articleAddErr = new BaseException("Ошибка при добавлении изделий в БД (Функция FillSpecification)", MessageLevel.Error);
                         throw articleAddErr;
                     }
 
                     try
                     {
                         // Добавим компоненты к изделиям, то есть, завершим спецификацию
-                        for (int i = 0; i < projectProductNames.Length; i++)
+                        for (int item = 0; item < projectArticlesNames.Length; item++)
                         {
                             // Айди проекта ищу
-                            int projID = DBCon.Projs.Where(
+                            var projID = DBCon.Projs.Where(
                             o => o.Name == project.Name)
                             .Select(o1 => o1.ProjID).FirstOrDefault();
-                            string searchArticle = projectProductNames[i];
+                            var searchArticle = projectArticlesNames[item];
                             // Ищу айди изделия, в которое буду добавлять
                             // Но надо проверить, есть ли это изделие в структурных обозначениях               
                             if (DBCon.LocationDescriptions.Where(
                                 o => o.Name == searchArticle).FirstOrDefault() != null)
                             {
-                                int LocationID = DBCon.LocationDescriptions.Where(
+                                var LocationID = DBCon.LocationDescriptions.Where(
                                     o => o.Name == searchArticle)
                                     .Select(o1 => o1.LocationDescriptionID).FirstOrDefault();
-                                int articleID = DBCon.PArticles.Where(
+                                var articleID = DBCon.PArticles.Where(
                                     o => o.ProjectID == projID).Where(
                                     o1 => o1.LocationDesriptionID == LocationID).Select(
                                     o2 => o2.PArticleID).FirstOrDefault();
-                                for (int j = 0; j < specificationInfo[i].Count; j++)
+                                for (int itemCounter = 0; itemCounter < сomponentShortDescriptions[item].Count; itemCounter++)
                                 {
                                     // Так как индекс projectProductNames соответствует
                                     // индексу списка списков ComponentInfo
-                                    Component component = new Component();
+                                    var component = new Component();
                                     component.PArticleID = articleID;
                                     // Перебираю внутренний список
-                                    component.PartNumber = specificationInfo[i][j].PartNumber;
-                                    component.Count = specificationInfo[i][j].Count;
+                                    component.PartNumber = сomponentShortDescriptions[item][itemCounter].PartNumber;
+                                    component.Count = сomponentShortDescriptions[item][itemCounter].Count;
                                     DBCon.Components.Add(component);
                                     DBCon.SaveChanges();
                                 }
@@ -1212,7 +1211,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     catch
                     {
-                        BaseException componentAddErr = new BaseException("Ошибка при добавлении компонентов в БД (Функция FillSpecification)", MessageLevel.Error);
+                        var componentAddErr = new BaseException("Ошибка при добавлении компонентов в БД (Функция FillSpecification)", MessageLevel.Error);
                         throw componentAddErr;
                     }
                 }
@@ -1220,47 +1219,47 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 {
                     // Если проект есть, удалю его спецификацию
                     // И запишу новую (обновленную).
-                    Proj proj = DBCon.Projs.Where(
+                    var proj = DBCon.Projs.Where(
                         o => o.Name == project.Name).FirstOrDefault();
                     DBCon.Projs.Remove(proj);
                     DBCon.SaveChanges();
-                    FillSpecification(projectProductNames, specificationInfo, projName, locationInfos);
+                    FillSpecification(projectArticlesNames, сomponentShortDescriptions, structuralDescriptions);
                 }
             }
         }
 
         // Функция получения списка структурных идентификаторов изделий
-        public List<LocationInfo> GetLocationDescriptions(Project project, string[] projectProductNames)
+        public List<StructuralDescription> GetLocationDescriptions(Project project, string[] projectProductNames)
         {
             try
             {
-                Location[] locations = project.GetLocationObjects();
-                List<LocationInfo> locationInfos = new List<LocationInfo>();
-                MultiLangString descriptionString;
+                var locations = project.GetLocationObjects();
+                var structuralDescriptions = new List<StructuralDescription>();
+                var descriptionString = new MultiLangString();
                 foreach (Location location in locations)
                 {
                     // Если описание не пусто
                     if (location.Properties.LOCATION_DESCRIPTION != "")
                     {
-                        LocationInfo locationInfo = new LocationInfo();
-                        for (int i = 0; i < projectProductNames.Length; i++)
+                        var structuralDescription = new StructuralDescription();
+                        for (int item = 0; item < projectProductNames.Length; item++)
                         {
                             // Если нашли совпадение в списке изделий, записываем в список
-                            if (projectProductNames[i].Equals(location.Properties.LOCATION_FULLNAME))
+                            if (projectProductNames[item].Equals(location.Properties.LOCATION_FULLNAME))
                             {
                                 descriptionString = location.Properties.LOCATION_DESCRIPTION;
-                                locationInfo.Name = location.Properties.LOCATION_FULLNAME;
-                                locationInfo.Description = descriptionString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
-                                locationInfos.Add(locationInfo);
+                                structuralDescription.Name = location.Properties.LOCATION_FULLNAME;
+                                structuralDescription.Description = descriptionString.GetStringToDisplay(ISOCode.Language.L_ru_RU);
+                                structuralDescriptions.Add(structuralDescription);
                             }
                         }
                     }
                 }
-                return locationInfos;
+                return structuralDescriptions;
             }
             catch
             {
-                BaseException getLocDescrErr = new BaseException("Ошибка в функции GetLocationDescriptions", MessageLevel.Error);
+                var getLocDescrErr = new BaseException("Ошибка в функции GetLocationDescriptions", MessageLevel.Error);
                 throw getLocDescrErr;
             }
         }

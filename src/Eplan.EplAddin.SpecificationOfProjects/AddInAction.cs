@@ -19,43 +19,43 @@ namespace Eplan.AplAddin.SpecificationListOfObjects
         public bool Execute(ActionCallingContext actionCallingContext)
         {
             // Класс со всеми функциями данной dll
-            FunctionsManager FM = new FunctionsManager();
+            var functions = new Functions();
 
             // Проверяем ini настройки
-            FM.chekAddInIniFile();
+            functions.chekAddInIniFile();
 
             // Получить проект
-            Project currentProject = FM.GetProject();
+            var currentProject = functions.GetProject();
 
             // Получить все ссылки на компоненты в текущем проекте
-            ArticleReference[] currentArticleReferences = FM.GetArticleReferences(currentProject);
+            var currentArticleReferences = functions.GetArticleReferences(currentProject);
 
             // Отфильтровать ссылки, оставив только те, которые привязаны к реальным объектам
-            List<ArticleReference> filteredArticleReferences = FM.FilterArticleReferences(currentArticleReferences);
+            var filteredArticleReferences = functions.FilterArticleReferences(currentArticleReferences);
 
             // Получить список всех изделий, которые есть в проекте
-            string[] projectProductNames = FM.GetProjectProductNames(filteredArticleReferences);
+            var projectArticlesNames = functions.GetProjectArticlesNames(filteredArticleReferences);
 
             // Получить список списков всех компонентов для каждого изделия.
-            List<List<string>> productArticles = FM.GetProductArticles(projectProductNames, filteredArticleReferences);
+            var articlesComponents = functions.GetArticlesComponents(projectArticlesNames, filteredArticleReferences);
 
             // Получить список списков компонентов по изделиям
-            List<List<ComponentInfo>> specificationInfo = FM.GetProductArticleCount(projectProductNames, productArticles);
+            var сomponentShortDescriptions = functions.GetArticleComponentsCount(projectArticlesNames, articlesComponents);
 
             // Получить компоненты, которые есть в проекте
-            Article[] articleList = FM.GetProjectProductArticleList(currentProject, filteredArticleReferences);
+            var articleList = functions.GetProjectComponents(currentProject, filteredArticleReferences);
 
             // Получить данные для записи в справочник компонентов
-            ComponentCatalogInfo[] componentCatalogInfos = FM.GetArticleProperties(articleList);
+            var ComponentsFullDescriptions = functions.GetComponentsProperties(articleList);
 
             // Получить список структурных обозначений изделий
-            List<LocationInfo> locationInfos = FM.GetLocationDescriptions(currentProject, projectProductNames);
+            var structuralDescriptions = functions.GetLocationDescriptions(currentProject, projectArticlesNames);
             
             // Заполнить справочник компонентов
-            FM.FillComponentCatalog(componentCatalogInfos);
+            functions.FillComponentCatalog(ComponentsFullDescriptions);
 
             // Заполнить спецификацию в БД
-            FM.FillSpecification(projectProductNames, specificationInfo, currentProject.ProjectName, locationInfos);
+            functions.FillSpecification(projectArticlesNames, сomponentShortDescriptions, structuralDescriptions);
 
             // Оповестить об успешности
             new Decider().Decide(

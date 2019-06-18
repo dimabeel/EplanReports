@@ -48,9 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DBContext.cs" />
-    <Compile Include="DBDefaultData.cs" />
-    <Compile Include="DBModel.cs" />
+    <Compile Include="DataBaseContext.cs" />
+    <Compile Include="DataBaseDefaultValues.cs" />
+    <Compile Include="DataBaseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

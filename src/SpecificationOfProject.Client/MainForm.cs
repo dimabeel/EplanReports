@@ -24,14 +24,11 @@ namespace SpecificationOfProject.Client
 
         public MainForm()
         {
-            InitializeComponent();
-            
+            InitializeComponent();        
             // Определили владельца формы
-            addDocument.Owner = this;
-            
+            addDocument.Owner = this;          
             //Проверяем ini файл клиента
-            chekClientIniFile();
-            
+            chekClientIniFile();          
             // Заполняем дерево при запуске
             FillTreeview();
         }
@@ -72,7 +69,7 @@ namespace SpecificationOfProject.Client
         }
 
         // Заполнить дерево
-        public void FillTreeview()
+        private void FillTreeview()
         {
             // Отключаем кнопки т.к дерево обновляется и проект не выбран
             button1.Visible = false;
@@ -88,36 +85,36 @@ namespace SpecificationOfProject.Client
             treeView1.Refresh();
             try
             {
-                using (DBContext DBCon = new DBContext())
+                using (DataBaseContext DBCon = new DataBaseContext())
                 {
                     // Получаем проекты
-                    Proj[] projs = DBCon.Projs.ToArray();
+                    var projs = DBCon.Projs.ToArray();
 
                     // Перебираем проекты
                     foreach (Proj proj in projs)
                     {
                         // Получаю изделия по проекту
-                        PArticle[] pArticles = DBCon.PArticles.Where(
+                        var pArticles = DBCon.PArticles.Where(
                             o => o.ProjectID == proj.ProjID).ToArray();
                         // Создаю treeNode с  нулевым уровнем = proj.Name
-                        TreeNode projNode = new TreeNode(proj.Name);
+                        var projNode = new TreeNode(proj.Name);
                         projNode.Name = proj.ProjID.ToString();
                         projNode.Text = proj.Name;
                         foreach (PArticle pArticle in pArticles)
                         {
                             // Ищу описание по изделию
-                            string descr = DBCon.LocationDescriptions.Where(
+                            var descr = DBCon.LocationDescriptions.Where(
                                 o => o.LocationDescriptionID == pArticle.LocationDesriptionID).
                                 Select(o1 => o1.Description).FirstOrDefault();
-                            string locationID = DBCon.LocationDescriptions.Where(
+                            var locationID = DBCon.LocationDescriptions.Where(
                                 o => o.LocationDescriptionID == pArticle.LocationDesriptionID).
                                 Select(o1 => o1.LocationDescriptionID).FirstOrDefault().ToString();
                             // Заполняю первый уровень
                             projNode.Nodes.Add(locationID, descr);
                             // Заполняю второй уровень           
-                            List<Component> components = DBCon.Components.Where(
+                            var components = DBCon.Components.Where(
                                 o => o.PArticleID == pArticle.PArticleID).ToList();
-                            TreeNode articleNode = new TreeNode();
+                            var articleNode = new TreeNode();
                             foreach (Component component in components)
                             {
                                 projNode.LastNode.Nodes.Add(component.PartNumber, component.PartNumber);
@@ -149,53 +146,56 @@ namespace SpecificationOfProject.Client
 
             const int minComponentNameLength = 3;
             const int minComponentDescriptionLength = 5;
-            FunctionManager FM = new FunctionManager();
+            var functions = new Functions();
             // Если выбрано значение в дереве и оно первого уровня вложенности
             if (treeView1.SelectedNode != null && treeView1.SelectedNode.Level == 1)
             {
                 // Записываю, какой проект выбран сейчас (ProjID)
                 selectedProject = treeView1.SelectedNode.Parent.Name;
                 label3.Text = treeView1.SelectedNode.Parent.Text;
-                string selectedItemParentName = treeView1.SelectedNode.Parent.Text;
-                int selectedItemID = Convert.ToInt32(treeView1.SelectedNode.Name);
+                var selectedItemParentName = treeView1.SelectedNode.Parent.Text;
+                var selectedItemID = Convert.ToInt32(treeView1.SelectedNode.Name);
                 try
                 {
                     // Если к Бд подключилс, то и настраивай колонки
-                    using (DBContext DBCon = new DBContext())
+                    using (DataBaseContext DBCon = new DataBaseContext())
                     {
                         // Настройка колонок первого уровня
                         setUpFirstLevelGridColumns();
                         // Нашел проект к которому принадлежит узел в дереве
-                        Proj proj = DBCon.Projs.Where(
+                        var proj = DBCon.Projs.Where(
                             o => o.Name == selectedItemParentName).FirstOrDefault();
+                        // Дописал автора и дату начала проекта
+                        label4.Text = proj.Executor;
+                        label6.Text = proj.DateTime.ToString();
                         // Нашел код описания изделия
-                        int selectedItemLocationID = DBCon.LocationDescriptions.Where(
+                        var selectedItemLocationID = DBCon.LocationDescriptions.Where(
                             o => o.LocationDescriptionID == selectedItemID).Select(
                             o1 => o1.LocationDescriptionID).FirstOrDefault();
                         // Нашел изделие, которое выбрано в дереве по коду
-                        PArticle pArticle = DBCon.PArticles.Where(
+                        var pArticle = DBCon.PArticles.Where(
                             o => o.ProjectID == proj.ProjID).Where(
                             o1 => o1.LocationDesriptionID == selectedItemLocationID).FirstOrDefault();
                         // Нашел все компоненты по изделию
-                        List<Component> components = DBCon.Components.Where(
+                        var components = DBCon.Components.Where(
                             o => o.PArticleID == pArticle.PArticleID).ToList();
                         // Перебираю компоненты, заполняю грид
                         foreach (Component component in components)
                         {
-                            string componentType = DBCon.ComponentCatalogs.Where(
+                            var componentType = DBCon.ComponentCatalogs.Where(
                                 o => o.PartNumber == component.PartNumber).Select(
                                 o1 => o1.TypeNumber).FirstOrDefault();
-                            string componentManufacturer = DBCon.ComponentCatalogs.Where(
+                            var componentManufacturer = DBCon.ComponentCatalogs.Where(
                                 o => o.PartNumber == component.PartNumber).Select(
                                 o1 => o1.ManufacturerFullName).FirstOrDefault();
-                            string componentDescr1 = DBCon.ComponentCatalogs.Where(
+                            var componentDescr1 = DBCon.ComponentCatalogs.Where(
                                 o => o.PartNumber == component.PartNumber).Select(
                                 o1 => o1.Description1).FirstOrDefault();
-                            string componentDescr2 = DBCon.ComponentCatalogs.Where(
+                            var componentDescr2 = DBCon.ComponentCatalogs.Where(
                                 o => o.PartNumber == component.PartNumber).Select(
                                 o1 => o1.Description2).FirstOrDefault();
-                            string componentInfo = componentManufacturer + " " + componentType;
-                            string componentDescription = componentDescr1 + " (" + componentDescr2 + ")";
+                            var componentInfo = componentManufacturer + " " + componentType;
+                            var componentDescription = componentDescr1 + " (" + componentDescr2 + ")";
                             if (componentInfo.Length < minComponentNameLength) componentInfo = component.PartNumber;
                             if (componentDescription.Length < minComponentDescriptionLength) componentDescription = "Отсутствует";
                             dataGridView1.Rows.Add(componentInfo, componentDescription, component.Count);
@@ -215,28 +215,31 @@ namespace SpecificationOfProject.Client
                 // Записываю, какой проект выбран сейчас (ProjID)
                 selectedProject = treeView1.SelectedNode.Name;
                 label3.Text = treeView1.SelectedNode.Text;
-                string selectedItem = treeView1.SelectedNode.Text;
+                var selectedItem = treeView1.SelectedNode.Text;
                 try
                 {
                     // Если к Бд подключилс, то и настраивай колонки
-                    using (DBContext DBCon = new DBContext())
+                    using (DataBaseContext DBCon = new DataBaseContext())
                     {
                         // Настраиваю колонки нулевого уровня
                         setUpZeroLevelGridColumns();
                         // Нашел проект к которому принадлежит узел в дереве
-                        Proj proj = DBCon.Projs.Where(
+                        var proj = DBCon.Projs.Where(
                             o => o.Name == selectedItem).FirstOrDefault();
+                        // Дописал автора и дату начала проекта
+                        label4.Text = proj.Executor;
+                        label6.Text = proj.DateTime.ToString();
                         // Нашел все изделия в проекте
-                        List<PArticle> pArticles = DBCon.PArticles.Where(
+                        var pArticles = DBCon.PArticles.Where(
                             o => o.ProjectID == proj.ProjID).ToList();
                         // Заполняю грид
                         foreach (PArticle pArticle in pArticles)
                         {
-                            string descr = DBCon.LocationDescriptions.Where(
+                            var descr = DBCon.LocationDescriptions.Where(
                                 o => o.LocationDescriptionID == pArticle.LocationDesriptionID).Select(
                                 o1 => o1.Description).FirstOrDefault();
-                            int count = 0;
-                            List<Component> components = DBCon.Components.Where(
+                            var count = 0;
+                            var components = DBCon.Components.Where(
                                 o => o.PArticleID == pArticle.PArticleID).ToList();
                             foreach (Component component in components)
                             {
@@ -258,19 +261,27 @@ namespace SpecificationOfProject.Client
             {
                 // Записываю, какой проект выбран сейчас (ProjID)
                 selectedProject = treeView1.SelectedNode.Parent.Parent.Name;
-                label3.Text = treeView1.SelectedNode.Parent.Parent.Text;
+                var projName = treeView1.SelectedNode.Parent.Parent.Text;
+                label3.Text = projName;
+                using (DataBaseContext DBCon = new DataBaseContext()) {
+                    var proj = DBCon.Projs.Where(
+                            o => o.Name == projName).FirstOrDefault();
+                    // Дописал автора и дату начала проекта
+                    label4.Text = proj.Executor;
+                    label6.Text = proj.DateTime.ToString();
+                }
                 // Ищу выбранный компонент и по нему заполняю грид
-                string componentName = treeView1.SelectedNode.Name;
-                List<ComponentPropertiesInfo> componentPropertiesInfos = FM.GetPropertiesInfos(componentName);
+                var componentName = treeView1.SelectedNode.Name;
+                var componentProperties = functions.GetSelectedComponentProperties(componentName);
                 // Настраиваю колонки второго уровня              
                 setUpSecondLevelGridColumns();
-                foreach (ComponentPropertiesInfo componentPropertiesInfo in componentPropertiesInfos)
+                foreach (ComponentProperties componentProperty in componentProperties)
                 {
-                    if ((componentPropertiesInfo.Value != "") &&
-                        (componentPropertiesInfo.Value != "0") &&
-                        (componentPropertiesInfo.Value != null))
+                    if ((componentProperty.Value != "") &&
+                        (componentProperty.Value != "0") &&
+                        (componentProperty.Value != null))
                     {
-                        dataGridView1.Rows.Add(componentPropertiesInfo.Property, componentPropertiesInfo.Value);
+                        dataGridView1.Rows.Add(componentProperty.Property, componentProperty.Value);
                     }
                 }
                 dataGridView1.ClearSelection();
@@ -284,7 +295,7 @@ namespace SpecificationOfProject.Client
             setUpProjectDocumentsGridColumns();
 
             // Проверяю, есть ли каталог проекта в хранилище.
-            string projectPath = documentsPath + selectedProject.ToString();
+            var projectPath = documentsPath + selectedProject.ToString();
             if (Directory.Exists(projectPath))
             {
                 FillDocumentsForProjectGrid();
@@ -304,25 +315,25 @@ namespace SpecificationOfProject.Client
         // Сформировать спецификацию
         private void button2_Click(object sender, EventArgs e)
         {
-            FunctionManager FM = new FunctionManager();
-            string savePath = documentsPath + selectedProject;
-            string projectName = label3.Text;
-            FM.CreateProjectSpecification(selectedProject, savePath, projectName);
+            var functions = new Functions();
+            var savePath = documentsPath + selectedProject;
+            var projectName = label3.Text;
+            functions.CreateProjectSpecificationDocument(selectedProject, savePath, projectName);
             try
             {
                 // Сохраняю в БД
-                using (DBContext DBCon = new DBContext())
+                using (DataBaseContext DBCon = new DataBaseContext())
                 {
                     // Проверяю, есть ли такой документ по проекту
-                    int projectID = Convert.ToInt32(selectedProject);
-                    string docName = DBCon.DocumentForProjects.Where(o => o.ProjectID == projectID).Where(
+                    var projectID = Convert.ToInt32(selectedProject);
+                    var docName = DBCon.DocumentForProjects.Where(o => o.ProjectID == projectID).Where(
                         o1 => o1.DocumentName == "Спецификация.xlsx").Select(
                         o2 => o2.DocumentName).FirstOrDefault();
                     // Если документа нет, сохраняем, если есть - он перезапишется сам
                     if (docName == null)
                     {
                         // Записываю данные для записи
-                        DocumentForProject documentForProject = new DocumentForProject();
+                        var documentForProject = new DocumentForProject();
                         documentForProject.ProjectID = Convert.ToInt32(selectedProject);
                         documentForProject.DocumentName = "Спецификация.xlsx";
                         documentForProject.DocumentType = "Спецификация";
@@ -344,13 +355,13 @@ namespace SpecificationOfProject.Client
         // Сформировать заявку на склад
         private void button1_Click(object sender, EventArgs e)
         {
-            FunctionManager FM = new FunctionManager();
-            string savePath = documentsPath + selectedProject;
-            FM.CreateProjectWarehouseRequest(selectedProject, savePath);
+            var functions = new Functions();
+            var savePath = documentsPath + selectedProject;
+            functions.CreateProjectWarehouseRequestDocument(selectedProject, savePath);
             try
             {
                 // Сохраняю в БД
-                using (DBContext DBCon = new DBContext())
+                using (DataBaseContext DBCon = new DataBaseContext())
                 {
                     // Проверяю, есть ли такой документ по проекту
                     int projectID = Convert.ToInt32(selectedProject);
@@ -381,7 +392,7 @@ namespace SpecificationOfProject.Client
         }
 
         // Настройка колонок грида для первого уровня вложенности
-        public void setUpFirstLevelGridColumns()
+        private void setUpFirstLevelGridColumns()
         {
             dataGridView1.MultiSelect = false;
             dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
@@ -408,7 +419,7 @@ namespace SpecificationOfProject.Client
         }
 
         // Настройка колонок грида для нулевого уровня вложенности
-        public void setUpZeroLevelGridColumns()
+        private void setUpZeroLevelGridColumns()
         {
             dataGridView1.MultiSelect = false;
             var column1 = new DataGridViewColumn();
@@ -429,7 +440,7 @@ namespace SpecificationOfProject.Client
         }
 
         // Настройка колонок грида для второго уровня вложенности
-        public void setUpSecondLevelGridColumns()
+        private void setUpSecondLevelGridColumns()
         {
             dataGridView1.MultiSelect = false;
             var column1 = new DataGridViewColumn();
@@ -450,7 +461,7 @@ namespace SpecificationOfProject.Client
         }
 
         // Настройка колонок грида для документов по проекту
-        public void setUpProjectDocumentsGridColumns()
+        private void setUpProjectDocumentsGridColumns()
         {
             dataGridView1.MultiSelect = false;
             dataGridView1.Columns.Clear();
@@ -513,17 +524,15 @@ namespace SpecificationOfProject.Client
             }
             else
             {
-                // Номер колонки, где спрятан код документа (отчет с 0)
-                const int docIDinGridColumnIndex = 4;
                 // Индекс выбранной строки
-                int selectedRowIndex = dataGridView1.CurrentRow.Index;
+                var selectedRowIndex = dataGridView1.CurrentRow.Index;
                 // Код выбранного документа
-                int selectedDocID = Convert.ToInt32(dataGridView1[docIDinGridColumnIndex, selectedRowIndex].Value);
-                DocumentForProject documentForProject = new DocumentForProject();
+                var selectedDocID = Convert.ToInt32(dataGridView1[4, selectedRowIndex].Value);
+                var documentForProject = new DocumentForProject();
                 try
                 {
                     // Подключаюсь к БД
-                    using (DBContext DBCon = new DBContext())
+                    using (DataBaseContext DBCon = new DataBaseContext())
                     {
                         // Нашел выбранный документ
                         documentForProject = DBCon.DocumentForProjects.Where(
@@ -532,7 +541,7 @@ namespace SpecificationOfProject.Client
                         DBCon.DocumentForProjects.Remove(documentForProject);
                         DBCon.SaveChanges();
                         // Удалил его физически из директории
-                        FileInfo fileInfo = new FileInfo(documentForProject.DocumentPath);
+                        var fileInfo = new FileInfo(documentForProject.DocumentPath);
                         if (fileInfo.Exists == true)
                         {
                             fileInfo.Delete();
@@ -558,14 +567,15 @@ namespace SpecificationOfProject.Client
             // 0 1 2, во второй колонке с нуля кнопка
             if (e.ColumnIndex == 2)
             {
-                string path = dataGridView1[e.ColumnIndex + 1, e.RowIndex].Value.ToString();
+                // В столбце после кнопки указан путь к файлу (скрыто)
+                var path = dataGridView1[e.ColumnIndex + 1, e.RowIndex].Value.ToString();
                 try
                 {
                     Process.Start(path);
                 }
                 catch
                 {
-                    Exception runErr = new Exception("Ошибка при запуске файла. Проверьте:\n1. Доступ к каталогу\n2. Наличие файла\n3. Наличие ПО для открытия файла\n(Функция обработки кнопки <Открыть>)");
+                    var runErr = new Exception("Ошибка при запуске файла. Проверьте:\n1. Доступ к каталогу\n2. Наличие файла\n3. Наличие ПО для открытия файла\n(Функция обработки кнопки <Открыть>)");
                     throw runErr;
                 }
             }
@@ -577,17 +587,17 @@ namespace SpecificationOfProject.Client
             try
             {
                 dataGridView1.Rows.Clear();
-                using (DBContext DBCon = new DBContext())
+                using (DataBaseContext DBCon = new DataBaseContext())
                 {
-                    int selectedProjectID = Convert.ToInt32(selectedProject);
-                    DocumentForProject[] documentForProjects = DBCon.DocumentForProjects.Where(
+                    var selectedProjectID = Convert.ToInt32(selectedProject);
+                    var documentForProjects = DBCon.DocumentForProjects.Where(
                         o => o.ProjectID == selectedProjectID).ToArray();
                     foreach (DocumentForProject documentForProject in documentForProjects)
                     {
-                        int docID = documentForProject.DocumentID;
-                        string docName = documentForProject.DocumentName;
-                        string docType = documentForProject.DocumentType;
-                        string docPath = documentForProject.DocumentPath;
+                        var docID = documentForProject.DocumentID;
+                        var docName = documentForProject.DocumentName;
+                        var docType = documentForProject.DocumentType;
+                        var docPath = documentForProject.DocumentPath;
                         dataGridView1.Rows.Add(docName, docType, "Открыть", docPath, docID);
                     }
                 }
