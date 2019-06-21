@@ -39,11 +39,11 @@ namespace Eplan.EplAddin.SpecificationListOfObjects
         // До инициализации получаю путь к надстройке
         public void OnBeforeInit(string strOriginalAssemblyPath)
         {
-            originalAssemblyPath = strOriginalAssemblyPath;
+            OriginalAssemblyPath = strOriginalAssemblyPath;
         }
         
         // static переменная для пути
-        public static string originalAssemblyPath;
+        public static string OriginalAssemblyPath;
     }
 }
 

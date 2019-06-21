@@ -22,7 +22,7 @@ namespace Eplan.AplAddin.SpecificationListOfObjects
             var functions = new Functions();
 
             // Проверяем ini настройки
-            functions.chekAddInIniFile();
+            functions.ChekAddInIniFile();
 
             // Получить проект
             var currentProject = functions.GetProject();
@@ -46,13 +46,13 @@ namespace Eplan.AplAddin.SpecificationListOfObjects
             var articleList = functions.GetProjectComponents(currentProject, filteredArticleReferences);
 
             // Получить данные для записи в справочник компонентов
-            var ComponentsFullDescriptions = functions.GetComponentsProperties(articleList);
+            var componentsFullDescriptions = functions.GetComponentsProperties(articleList);
 
             // Получить список структурных обозначений изделий
             var structuralDescriptions = functions.GetLocationDescriptions(currentProject, projectArticlesNames);
             
             // Заполнить справочник компонентов
-            functions.FillComponentCatalog(ComponentsFullDescriptions);
+            functions.FillComponentCatalog(componentsFullDescriptions);
 
             // Заполнить спецификацию в БД
             functions.FillSpecification(projectArticlesNames, сomponentShortDescriptions, structuralDescriptions);

@@ -12,21 +12,20 @@ namespace Eplan.EplAddin.SpecificationOfProjects
     public class Functions
     {
         // Путь к надстройке
-        string[] originalAssemblypath = AddInModule.originalAssemblyPath.Split('\\');
+        string[] originalAssemblypath = AddInModule.OriginalAssemblyPath.Split('\\');
         
         // Название файла конфигурации
         string configFileName = @"DataBaseConnectionConfig.ini";
         
         // Строка подключения
         string connectionString = @"";
-        
+
         // Получение полного пути к файлу настроек
         public string GetConfigFilePath()
         {
-            var sourceStart = 0;
             var sourceEnd = originalAssemblypath.Length - 1;
             var path = @"";
-            for (int source = sourceStart; source < sourceEnd; source++)
+            for (int source = 0; source < sourceEnd; source++)
             {
                 path += originalAssemblypath[source].ToString() + "\\";
             }
@@ -35,7 +34,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         }
         
         // Функция проверки ini файла надстройки
-        public void chekAddInIniFile()
+        public void ChekAddInIniFile()
         {
             var configFilePath = GetConfigFilePath();
             // Обращаемся к INI файлу
@@ -286,11 +285,12 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция получения ссылок на изделия в проекте
         public ArticleReference[] GetArticleReferences(Project project)
         {
+            const int MinimalLength = 1;
             try
             {
                 var objectFinder = new DMObjectsFinder(project);
                 var articleReferences = objectFinder.GetArticleReferences(null);
-                if (articleReferences.Length < 1) // Если ссылок нет
+                if (articleReferences.Length < MinimalLength) // Если ссылок нет
                 {
                     var articleReferencesIsNull = new BaseException("Ссылки ArticleReferences пусты! (функция GetArticleReferences)", MessageLevel.Error);
                     throw articleReferencesIsNull;
@@ -307,6 +307,10 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция фильтрации ссылок на изделия по необходимым параметрам
         public List<ArticleReference> FilterArticleReferences(ArticleReference[] articleReferences)
         {
+            const int MinimalLength = 1;
+            const int ArticleNameStringNumber = 0;
+            const int ArticleDeviceTypeStringNumber = 1;
+            const int ArticleTypeStringNumber = 0;
             try
             {
                 var filteredArticleReferences = new List<ArticleReference>();
@@ -314,17 +318,17 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 {
                     // Example: +CAB5-F8 || +CAB1-1-F8
                     var splitedReferenceIdentifyingName = reference.IdentifyingName.Split('-');
-                    if (splitedReferenceIdentifyingName.Length > 1)
+                    if (splitedReferenceIdentifyingName.Length > MinimalLength)
                     {
-                        var articleDeviceType = splitedReferenceIdentifyingName[1];
-                        var articleType = splitedReferenceIdentifyingName[0];
+                        var articleDeviceType = splitedReferenceIdentifyingName[ArticleDeviceTypeStringNumber];
+                        var articleType = splitedReferenceIdentifyingName[ArticleTypeStringNumber];
                         // Проверяем корректность, буква 'W' - кабели, они не нужны
                         // Ловим символ между CAB1 и F8 (пример), что бы понять, что пришло
                         var isDigit = int.TryParse(articleDeviceType.ToString(), out int fictiv);
                         if ((isDigit == false) && (fictiv < 100))
                         {
                             // Цифры нет, все штатно
-                            if ((articleDeviceType[0] != 'W') && (articleType.Length > 1))
+                            if ((articleDeviceType[ArticleNameStringNumber] != 'W') && (articleType.Length > MinimalLength))
                             {
                                 filteredArticleReferences.Add(reference);
                             }
@@ -333,15 +337,15 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         {
                             // Если цифра есть, то сдвигаем проверку на 1 индекс вправо
                             // Так как теперь компонент лежит там
-                            articleDeviceType = splitedReferenceIdentifyingName[2];
-                            if ((articleDeviceType[0] != 'W') && (articleType.Length > 1))
+                            articleDeviceType = splitedReferenceIdentifyingName[ArticleDeviceTypeStringNumber + 1];
+                            if ((articleDeviceType[ArticleNameStringNumber] != 'W') && (articleType.Length > MinimalLength))
                             {
                                 filteredArticleReferences.Add(reference);
                             }
                         }
                     }
                 }
-                if (filteredArticleReferences.Count < 1) // Если список пуст
+                if (filteredArticleReferences.Count < MinimalLength) // Если список пуст
                 {
                     var filteredArticleReferencesListIsNull = new BaseException("Отфильтрованный список пуст! (функция FilterArticleReferences)", MessageLevel.Error);
                     throw filteredArticleReferencesListIsNull;
@@ -358,6 +362,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция получения имени изделия (одного)
         public string GetProjectArticleName(ArticleReference articleReference) // Получение имени изделия из IdentifyingName для 1 ссылки
         {
+            const int ArticleNameStringNumber = 1;
+            const int ExtraArticleNameStringNumber = 1;
             var articleName = string.Empty;
             try
             {
@@ -365,14 +371,14 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 // [0] +CAB1; [1] 1; [2] FQT1;
                 var mainStringSplit = articleReference.IdentifyingName.Split('-');
                 var noReadyName = mainStringSplit[0].Split('+');
-                var isDigit = int.TryParse(mainStringSplit[1].ToString(), out int fictiv);
+                var isDigit = int.TryParse(mainStringSplit[ExtraArticleNameStringNumber].ToString(), out int fictiv);
                 if ((isDigit == false) && (fictiv < 100))
                 {
-                    articleName = noReadyName[1];
+                    articleName = noReadyName[ArticleNameStringNumber];
                 }
                 else
                 {
-                    articleName = noReadyName[1] + "-" + mainStringSplit[1].ToString();
+                    articleName = noReadyName[ArticleNameStringNumber] + "-" + mainStringSplit[ExtraArticleNameStringNumber].ToString();
                 }
             }
             catch
@@ -484,8 +490,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 }
                 catch
                 {
-                    var ProdArticleCountErr = new BaseException("Ошибка в функции GetArticleComponentsCount", MessageLevel.Error);
-                    throw ProdArticleCountErr;
+                    var prodArticleCountErr = new BaseException("Ошибка в функции GetArticleComponentsCount", MessageLevel.Error);
+                    throw prodArticleCountErr;
                 }
             }
             return articleComponentsShortDesctiption;
@@ -524,14 +530,16 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             }
             catch
             {
-                var ProjArticleListErr = new BaseException("Ошибка в функции GetProjectComponents", MessageLevel.Error);
-                throw ProjArticleListErr;
+                var projArticleListErr = new BaseException("Ошибка в функции GetProjectComponents", MessageLevel.Error);
+                throw projArticleListErr;
             }
         }
 
         // Функция получения свойств компонентов для справочника
         public ComponentsFullDescription[] GetComponentsProperties(Article[] articles)
         {
+            const string NullValue = null;
+            const int ZeroValue = 0;
             try
             {
                 var componentCatalogInfos = new ComponentsFullDescription[articles.Length];
@@ -547,7 +555,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].TypeNumber = null;
+                        componentCatalogInfos[item].TypeNumber = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_ORDERNR.IsEmpty == false)
@@ -557,7 +565,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].OrderNumber = null;
+                        componentCatalogInfos[item].OrderNumber = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_MANUFACTURER.IsEmpty == false)
@@ -566,7 +574,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].ManufacturerSmallName = null;
+                        componentCatalogInfos[item].ManufacturerSmallName = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_MANUFACTURER_NAME.IsEmpty == false)
@@ -575,7 +583,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].ManufacturerFullName = null;
+                        componentCatalogInfos[item].ManufacturerFullName = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_SUPPLIER.IsEmpty == false)
@@ -584,7 +592,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].SupplierSmallName = null;
+                        componentCatalogInfos[item].SupplierSmallName = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_SUPPLIER_NAME.IsEmpty == false)
@@ -593,7 +601,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].SupplierFullName = null;
+                        componentCatalogInfos[item].SupplierFullName = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_DESCR1.IsEmpty == false)
@@ -603,7 +611,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Description1 = null;
+                        componentCatalogInfos[item].Description1 = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_DESCR2.IsEmpty == false)
@@ -613,7 +621,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Description2 = null;
+                        componentCatalogInfos[item].Description2 = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_CHARACTERISTICS.IsEmpty == false)
@@ -622,7 +630,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].TechnicalCharacteristics = null;
+                        componentCatalogInfos[item].TechnicalCharacteristics = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_NOTE.IsEmpty == false)
@@ -632,7 +640,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Note = null;
+                        componentCatalogInfos[item].Note = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_CROSSSECTIONFROM.IsEmpty == false)
@@ -641,7 +649,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].TerminalCrossSectionFrom = null;
+                        componentCatalogInfos[item].TerminalCrossSectionFrom = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_CROSSSECTIONTILL.IsEmpty == false)
@@ -650,7 +658,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].TerminalCrossSectionTo = null;
+                        componentCatalogInfos[item].TerminalCrossSectionTo = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_ELECTRICALCURRENT.IsEmpty == false)
@@ -659,7 +667,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].ElectricalCurrent = null;
+                        componentCatalogInfos[item].ElectricalCurrent = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_ELECTRICALPOWER.IsEmpty == false)
@@ -668,7 +676,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].ElectricalSwitchingCapacity = null;
+                        componentCatalogInfos[item].ElectricalSwitchingCapacity = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_VOLTAGE.IsEmpty == false)
@@ -677,7 +685,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Voltage = null;
+                        componentCatalogInfos[item].Voltage = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_VOLTAGETYPE.IsEmpty == false)
@@ -686,7 +694,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].VoltageType = null;
+                        componentCatalogInfos[item].VoltageType = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_HEIGHT.IsEmpty == false)
@@ -695,7 +703,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Height = 0;
+                        componentCatalogInfos[item].Height = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_WIDTH.IsEmpty == false)
@@ -704,7 +712,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Width = 0;
+                        componentCatalogInfos[item].Width = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_DEPTH.IsEmpty == false)
@@ -713,7 +721,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Depth = 0;
+                        componentCatalogInfos[item].Depth = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_WEIGHT.IsEmpty == false)
@@ -722,7 +730,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].Weight = 0;
+                        componentCatalogInfos[item].Weight = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_MOUNTINGSITE.IsEmpty == false)
@@ -731,7 +739,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].MountingSiteID = 0;
+                        componentCatalogInfos[item].MountingSiteID = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_MOUNTINGSPACE.IsEmpty == false)
@@ -740,7 +748,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].MountingSpace = 0;
+                        componentCatalogInfos[item].MountingSpace = ZeroValue;
                     }
 
                     componentCatalogInfos[item].PartGroup = GetPartGroup(articles[item]); // 0-00-000
@@ -753,7 +761,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].QuantityUnit = null;
+                        componentCatalogInfos[item].QuantityUnit = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_PACKAGINGQUANTITY.IsEmpty == false)
@@ -762,7 +770,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].PackagingQuantity = 0;
+                        componentCatalogInfos[item].PackagingQuantity = ZeroValue;
                     }
 
                     if (articles[item].Properties.PART_LASTCHANGE.IsEmpty == false)
@@ -771,7 +779,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].LastChange = null;
+                        componentCatalogInfos[item].LastChange = NullValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_SALESPRICE_1.IsEmpty == false)
@@ -780,7 +788,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].SalesPrice1 = 0;
+                        componentCatalogInfos[item].SalesPrice1 = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_SALESPRICE_2.IsEmpty == false)
@@ -789,7 +797,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].SalesPrice2 = 0;
+                        componentCatalogInfos[item].SalesPrice2 = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_PURCHASEPRICE_1.IsEmpty == false)
@@ -798,7 +806,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].PurchasePrice1 = 0;
+                        componentCatalogInfos[item].PurchasePrice1 = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_PURCHASEPRICE_2.IsEmpty == false)
@@ -807,7 +815,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].PurchasePrice2 = 0;
+                        componentCatalogInfos[item].PurchasePrice2 = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_PACKAGINGPRICE_1.IsEmpty == false)
@@ -816,7 +824,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].PackagingPrice1 = 0;
+                        componentCatalogInfos[item].PackagingPrice1 = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_PACKAGINGPRICE_2.IsEmpty == false)
@@ -825,7 +833,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].PackagingPrice2 = 0;
+                        componentCatalogInfos[item].PackagingPrice2 = ZeroValue;
                     }
 
                     if (articles[item].Properties.ARTICLE_PRICEUNIT.IsEmpty == false)
@@ -834,15 +842,15 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     }
                     else
                     {
-                        componentCatalogInfos[item].PriceUnit = 0;
+                        componentCatalogInfos[item].PriceUnit = ZeroValue;
                     }
                 }
                 return componentCatalogInfos;
             }
             catch
             {
-                var ArtPropErr = new BaseException("Ошибка в функции GetComponentsProperties", MessageLevel.Error);
-                throw ArtPropErr;
+                var artPropErr = new BaseException("Ошибка в функции GetComponentsProperties", MessageLevel.Error);
+                throw artPropErr;
             }
         }
 
@@ -860,20 +868,21 @@ namespace Eplan.EplAddin.SpecificationOfProjects
             }
             catch
             {
-                var GetPartGroupErr = new BaseException("Ошибка в функции GetPartGroup", MessageLevel.Error);
-                throw GetPartGroupErr;
+                var getPartGroupErr = new BaseException("Ошибка в функции GetPartGroup", MessageLevel.Error);
+                throw getPartGroupErr;
             }
         }
 
         // Функция записи данных в справочник
         public void FillComponentCatalog(ComponentsFullDescription[] componentCatalogInfos)
         {
-            using (DataBaseContext DBCon = new DataBaseContext(connectionString))
+            const int MinimalLength = 1;
+            using (DataBaseContext dataBaseConnection = new DataBaseContext(connectionString))
             {
                 foreach (ComponentsFullDescription componentCatalogInfo in componentCatalogInfos)
                 {
                     // Если в справочнике количество таких PartNumber = 0 (нет таких), то пишем в справочник
-                    if (DBCon.ComponentCatalogs.Where(o => o.PartNumber == componentCatalogInfo.PartNumber).Count() < 1)
+                    if (dataBaseConnection.ComponentCatalogs.Where(o => o.PartNumber == componentCatalogInfo.PartNumber).Count() < MinimalLength)
                     {
                         var priceList = new PriceList(); // Для прайса
                         var componentCatalog = new ComponentCatalog(); // Для свойств
@@ -883,9 +892,9 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         // Обработка QuantityUnit для получения ID
                         try
                         {
-                            if ((componentCatalogInfo.QuantityUnit != null) && (componentCatalogInfo.QuantityUnit != ""))
+                            if ((componentCatalogInfo.QuantityUnit != null) && (componentCatalogInfo.QuantityUnit != string.Empty))
                             {
-                                quantityUnit = DBCon.QuantityUnits.Where(
+                                quantityUnit = dataBaseConnection.QuantityUnits.Where(
                                     o => o.Name == componentCatalogInfo.QuantityUnit)
                                     .FirstOrDefault();
                                 if (quantityUnit != null)
@@ -896,9 +905,9 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                 {
                                     quantityUnit = new QuantityUnit();
                                     quantityUnit.Name = componentCatalogInfo.QuantityUnit;
-                                    DBCon.QuantityUnits.Add(quantityUnit);
-                                    DBCon.SaveChanges();
-                                    quantityUnit = DBCon.QuantityUnits.Where(
+                                    dataBaseConnection.QuantityUnits.Add(quantityUnit);
+                                    dataBaseConnection.SaveChanges();
+                                    quantityUnit = dataBaseConnection.QuantityUnits.Where(
                                         o => o.Name == componentCatalogInfo.QuantityUnit).FirstOrDefault();
                                     componentCatalog.QuantityUnitID = quantityUnit.QuantityUnitID;
                                     quantityUnit = null;
@@ -919,7 +928,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         // Поиск монтажной поверхности по Internal value
                         try
                         {
-                            mountingSite = DBCon.MountingSites.Where(
+                            mountingSite = dataBaseConnection.MountingSites.Where(
                                 o => o.InternalValue == componentCatalogInfo.MountingSiteID)
                                 .First();
                             componentCatalog.MountingSiteID = mountingSite.MountingSiteID;
@@ -969,8 +978,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         // Проверяем как записывается в справочник компонентов
                         try
                         {
-                            DBCon.ComponentCatalogs.Add(componentCatalog);
-                            DBCon.SaveChanges();
+                            dataBaseConnection.ComponentCatalogs.Add(componentCatalog);
+                            dataBaseConnection.SaveChanges();
                         }
                         catch
                         {
@@ -990,8 +999,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                             priceList.PurchasePrice2 = componentCatalogInfo.PurchasePrice2;
                             priceList.SalesPrice1 = componentCatalogInfo.SalesPrice1;
                             priceList.SalesPrice2 = componentCatalogInfo.SalesPrice2;
-                            DBCon.PriceLists.Add(priceList);
-                            DBCon.SaveChanges();
+                            dataBaseConnection.PriceLists.Add(priceList);
+                            dataBaseConnection.SaveChanges();
                         }
                         catch
                         {
@@ -1005,7 +1014,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         try
                         {
                             // Получаю последний прайс объекта
-                            var prisesForCheck = DBCon.PriceLists.Where(
+                            var prisesForCheck = dataBaseConnection.PriceLists.Where(
                                 o => o.PartNumber == componentCatalogInfo.PartNumber).OrderBy(
                                 o1 => o1.LastChange).ToList();
                             var lastPriceList = prisesForCheck.Last();
@@ -1032,8 +1041,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                 updPriseList.PurchasePrice2 = componentCatalogInfo.PurchasePrice2;
                                 updPriseList.SalesPrice1 = componentCatalogInfo.SalesPrice1;
                                 updPriseList.SalesPrice2 = componentCatalogInfo.SalesPrice2;
-                                DBCon.PriceLists.Add(updPriseList);
-                                DBCon.SaveChanges();
+                                dataBaseConnection.PriceLists.Add(updPriseList);
+                                dataBaseConnection.SaveChanges();
                             }
                         }
                         catch
@@ -1049,11 +1058,12 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция получения времени из ARTICLE_LASTCHANGE
         public DateTime GetDateTimeFromString(string strForParse)
         {
+            const int DateTimeStringNumber = 1;
             try
             {
                 // "TSAM / 2010.10.03 10:09:44", поэтому нужна вторая часть строки
                 var splittedStr = strForParse.Split('/');
-                var strForConvert = splittedStr[1].Trim();
+                var strForConvert = splittedStr[DateTimeStringNumber].Trim();
                 var gettedDateTime = Convert.ToDateTime(strForConvert);
                 return gettedDateTime;
             }
@@ -1067,7 +1077,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
         // Функция записи данных спецификации в БД
         public void FillSpecification(string[] projectArticlesNames, List<List<ComponentShortDescription>> сomponentShortDescriptions, List<StructuralDescription> structuralDescriptions)
         {
-            using (DataBaseContext DBCon = new DataBaseContext(connectionString))
+            using (DataBaseContext dataBaseConnection = new DataBaseContext(connectionString))
             {
                 var selectionSetProject = new SelectionSet();
                 var currentProject = selectionSetProject.GetCurrentProject(true);
@@ -1078,13 +1088,13 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 project.DateTime = currentProject.Properties.PROJ_PROJECTBEGIN;
 
                 // Проверяю, есть ли у нас такой проект уже
-                if (DBCon.Projs.Where(o => o.Name == project.Name).Count() == 0)
+                if (dataBaseConnection.Projs.Where(o => o.Name == project.Name).Count() == 0)
                 {
                     try
                     {
                         // Если нету, добавляю проект
-                        DBCon.Projs.Add(project);
-                        DBCon.SaveChanges();
+                        dataBaseConnection.Projs.Add(project);
+                        dataBaseConnection.SaveChanges();
                     }
                     catch
                     {
@@ -1095,7 +1105,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                     try
                     {
                         // Теперь добавляю изделия из проекта
-                        var projID = DBCon.Projs.Where(
+                        var projID = dataBaseConnection.Projs.Where(
                             o => o.Name == project.Name)
                             .Select(o1 => o1.ProjID).FirstOrDefault();
                         foreach (string articleName in projectArticlesNames)
@@ -1104,7 +1114,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                             var location = new LocationDescription();
                             var projArticle = new PArticle(); // Моделька объекта
                             // Ищу, есть ли такое имя в таблице имен
-                            location = DBCon.LocationDescriptions.Where(
+                            location = dataBaseConnection.LocationDescriptions.Where(
                                 o => o.Name == articleName).FirstOrDefault();
                             if (location == null)
                             {
@@ -1119,9 +1129,9 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                     // Description = Name, ставим описание равным имени
                                     location.Description = location.Name;
                                 }
-                                DBCon.LocationDescriptions.Add(location);
-                                DBCon.SaveChanges();
-                                location = DBCon.LocationDescriptions.Where(
+                                dataBaseConnection.LocationDescriptions.Add(location);
+                                dataBaseConnection.SaveChanges();
+                                location = dataBaseConnection.LocationDescriptions.Where(
                                 o => o.Name == articleName).FirstOrDefault();
                                 projArticle.LocationDesriptionID = location.LocationDescriptionID;
                                 location = null;
@@ -1139,7 +1149,7 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                         var currentLocationDescription = structuralDescriptions.Find(o => o.Name == articleName).Description;
                                         // Если сработало без ошибок, обновляю его
                                         location.Description = currentLocationDescription;
-                                        DBCon.SaveChanges();
+                                        dataBaseConnection.SaveChanges();
                                         // И присваиваю ID projArticle
                                         projArticle.LocationDesriptionID = location.LocationDescriptionID;
                                     }
@@ -1157,9 +1167,9 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                 }
                             }
                             projArticle.ProjectID = projID;
-                            DBCon.PArticles.Add(projArticle);
+                            dataBaseConnection.PArticles.Add(projArticle);
                         }
-                        DBCon.SaveChanges();
+                        dataBaseConnection.SaveChanges();
                     }
                     catch
                     {
@@ -1173,19 +1183,19 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                         for (int item = 0; item < projectArticlesNames.Length; item++)
                         {
                             // Айди проекта ищу
-                            var projID = DBCon.Projs.Where(
+                            var projID = dataBaseConnection.Projs.Where(
                             o => o.Name == project.Name)
                             .Select(o1 => o1.ProjID).FirstOrDefault();
                             var searchArticle = projectArticlesNames[item];
                             // Ищу айди изделия, в которое буду добавлять
                             // Но надо проверить, есть ли это изделие в структурных обозначениях               
-                            if (DBCon.LocationDescriptions.Where(
+                            if (dataBaseConnection.LocationDescriptions.Where(
                                 o => o.Name == searchArticle).FirstOrDefault() != null)
                             {
-                                var LocationID = DBCon.LocationDescriptions.Where(
+                                var LocationID = dataBaseConnection.LocationDescriptions.Where(
                                     o => o.Name == searchArticle)
                                     .Select(o1 => o1.LocationDescriptionID).FirstOrDefault();
-                                var articleID = DBCon.PArticles.Where(
+                                var articleID = dataBaseConnection.PArticles.Where(
                                     o => o.ProjectID == projID).Where(
                                     o1 => o1.LocationDesriptionID == LocationID).Select(
                                     o2 => o2.PArticleID).FirstOrDefault();
@@ -1198,8 +1208,8 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                                     // Перебираю внутренний список
                                     component.PartNumber = сomponentShortDescriptions[item][itemCounter].PartNumber;
                                     component.Count = сomponentShortDescriptions[item][itemCounter].Count;
-                                    DBCon.Components.Add(component);
-                                    DBCon.SaveChanges();
+                                    dataBaseConnection.Components.Add(component);
+                                    dataBaseConnection.SaveChanges();
                                 }
                             }
                             else
@@ -1219,10 +1229,10 @@ namespace Eplan.EplAddin.SpecificationOfProjects
                 {
                     // Если проект есть, удалю его спецификацию
                     // И запишу новую (обновленную).
-                    var proj = DBCon.Projs.Where(
+                    var proj = dataBaseConnection.Projs.Where(
                         o => o.Name == project.Name).FirstOrDefault();
-                    DBCon.Projs.Remove(proj);
-                    DBCon.SaveChanges();
+                    dataBaseConnection.Projs.Remove(proj);
+                    dataBaseConnection.SaveChanges();
                     FillSpecification(projectArticlesNames, сomponentShortDescriptions, structuralDescriptions);
                 }
             }

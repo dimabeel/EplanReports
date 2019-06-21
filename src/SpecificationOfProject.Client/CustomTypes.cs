@@ -36,7 +36,7 @@ namespace SpecificationOfProject.Client
     // Описание компонентов для спецификации
     public class ComponentPropertiesForSpecification
     {
-        public int articleID;
+        public int ArticleID;
         public string PartNumber;
         public string Description1;
         public string Description2;
@@ -49,8 +49,8 @@ namespace SpecificationOfProject.Client
     // Описание изделий для спецификации
     public class ArticlePropertiesForSpecification
     {
-        public int articleID;
-        public string articleName;
-        public string articleDescription;
+        public int ArticleID;
+        public string ArticleName;
+        public string ArticleDescription;
     }
 }

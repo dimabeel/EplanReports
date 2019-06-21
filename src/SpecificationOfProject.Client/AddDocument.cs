@@ -53,10 +53,10 @@ namespace SpecificationOfProject.Client
         {
             try
             {
-                using (DataBaseContext DBCon = new DataBaseContext())
+                using (DataBaseContext dataBaseConnection = new DataBaseContext())
                 {
                     // Пробую получить хоть какие данные для проверки доступности БД (костыль)
-                    var testConnect = DBCon.Projs.LongCount().ToString();
+                    var testConnect = dataBaseConnection.Projs.LongCount().ToString();
 
                     // Записываю данные для записи
                     var documentForProject = new DocumentForProject();
@@ -80,8 +80,8 @@ namespace SpecificationOfProject.Client
                     documentForProject.DocumentPath = newDocPath;
 
                     // Вношу изменения в базу данных
-                    DBCon.DocumentForProjects.Add(documentForProject);
-                    DBCon.SaveChanges();
+                    dataBaseConnection.DocumentForProjects.Add(documentForProject);
+                    dataBaseConnection.SaveChanges();
                 }
                 // Закрываю форму и очищаю поля
                 button2_Click(null, null);
@@ -99,7 +99,7 @@ namespace SpecificationOfProject.Client
         // Проверяю индекс комбобокса и данные в текстбоксах для активации кнопки
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (textBox1.Text != "" && textBox2.Text != "" && comboBox1.Text != "")
+            if (textBox1.Text != string.Empty && textBox2.Text != string.Empty && comboBox1.Text != string.Empty)
             {
                 button1.Enabled = true;
             }

@@ -14,285 +14,287 @@ namespace SpecificationOfProject.Client
         // Функция получения свойств выбранного компонента
         public List<ComponentProperties> GetSelectedComponentProperties(string componentName)
         {
+            const int MinStringManufacturerLength = 4;
+            const int MinStringMountingSpaceLength = 6;
+            const int MinStringProportionsLength = 5;
+            const string EmptyStringWithZero = "0";
             try
             {
                 var componentPropertiesInfos = new List<ComponentProperties>();
-                using (DataBaseContext DBCon = new DataBaseContext())
+                using (DataBaseContext dataBaseConnection = new DataBaseContext())
                 {
-                    var componentCatalog = DBCon.ComponentCatalogs.Where(
+                    var componentCatalog = dataBaseConnection.ComponentCatalogs.Where(
                         o => o.PartNumber == componentName).FirstOrDefault();
-                    var ComponentProperty = new ComponentProperties();
-                    const int minStringManufacturerLength = 4;
-                    const int minStringMountingSpaceLength = 6;
-                    const int minStringProportionsLength = 5;
+                    var componentProperty = new ComponentProperties();
+
                     // Номер изделия
-                    ComponentProperty.Property = "Номер изделия";
-                    ComponentProperty.Value = componentCatalog.PartNumber;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty.Property = "Номер изделия";
+                    componentProperty.Value = componentCatalog.PartNumber;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Тип изделия
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Номер типа";
-                    ComponentProperty.Value = componentCatalog.TypeNumber;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Номер типа";
+                    componentProperty.Value = componentCatalog.TypeNumber;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Номер для заказа
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Номер для заказа";
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Номер для заказа";
                     // Если его нет, то ставим его пустым
-                    if (componentCatalog.OrderNumber != "")
+                    if (componentCatalog.OrderNumber != string.Empty)
                     {
-                        ComponentProperty.Value = componentCatalog.OrderNumber;
+                        componentProperty.Value = componentCatalog.OrderNumber;
                     }
                     else
                     {
-                        ComponentProperty.Value = "";
+                        componentProperty.Value = string.Empty;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Производитель
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Производитель";
-                    ComponentProperty.Value = componentCatalog.ManufacturerFullName
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Производитель";
+                    componentProperty.Value = componentCatalog.ManufacturerFullName
                          + " (" + componentCatalog.ManufacturerSmallName + ")";
                     // Проверяем, кроме скобок есть что нибудь или нет
-                    if (ComponentProperty.Value.Length < minStringManufacturerLength)
+                    if (componentProperty.Value.Length < MinStringManufacturerLength)
                     {
-                        ComponentProperty.Value = "";
+                        componentProperty.Value = string.Empty;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Поставщик
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Поставщик";
-                    ComponentProperty.Value = componentCatalog.SupplierFullName
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Поставщик";
+                    componentProperty.Value = componentCatalog.SupplierFullName
                         + " (" + componentCatalog.SupplierSmallName + ")";
-                    if (ComponentProperty.Value.Length < minStringManufacturerLength)
+                    if (componentProperty.Value.Length < MinStringManufacturerLength)
                     {
-                        ComponentProperty.Value = "";
+                        componentProperty.Value = string.Empty;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Обозначение 1
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Обозначение 1";
-                    ComponentProperty.Value = componentCatalog.Description1;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Обозначение 1";
+                    componentProperty.Value = componentCatalog.Description1;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Обозначение 2
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Обозначение 2";
-                    ComponentProperty.Value = componentCatalog.Description2;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Обозначение 2";
+                    componentProperty.Value = componentCatalog.Description2;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Описание
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Описание";
-                    ComponentProperty.Value = componentCatalog.Note;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Описание";
+                    componentProperty.Value = componentCatalog.Note;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Клеммы: сечение от
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Клеммы: сечение от";
-                    ComponentProperty.Value = componentCatalog.TerminalCrossSectionFrom;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Клеммы: сечение от";
+                    componentProperty.Value = componentCatalog.TerminalCrossSectionFrom;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Клеммы: сечение до
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Клеммы: сечение до";
-                    ComponentProperty.Value = componentCatalog.TerminalCrossSectionTo;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Клеммы: сечение до";
+                    componentProperty.Value = componentCatalog.TerminalCrossSectionTo;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Ток
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Ток";
-                    ComponentProperty.Value = componentCatalog.ElectricalCurrent;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Ток";
+                    componentProperty.Value = componentCatalog.ElectricalCurrent;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Коммутационная способность
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Коммутационная способность";
-                    ComponentProperty.Value = componentCatalog.ElectricalSwitchingCapacity;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Коммутационная способность";
+                    componentProperty.Value = componentCatalog.ElectricalSwitchingCapacity;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Напряжение
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Напряжение";
-                    ComponentProperty.Value = componentCatalog.Voltage;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Напряжение";
+                    componentProperty.Value = componentCatalog.Voltage;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Тип напряжения
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Тип напряжения";
-                    ComponentProperty.Value = componentCatalog.VoltageType;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Тип напряжения";
+                    componentProperty.Value = componentCatalog.VoltageType;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Высота
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Высота";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Height, 3) + " мм");
-                    if (ComponentProperty.Value.Length < minStringProportionsLength)
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Высота";
+                    componentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Height, 3) + " мм");
+                    if (componentProperty.Value.Length < MinStringProportionsLength)
                     {
-                        ComponentProperty.Value = "0";
+                        componentProperty.Value = EmptyStringWithZero;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Ширина
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Ширина";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Width, 3) + " мм");
-                    if (ComponentProperty.Value.Length < minStringProportionsLength)
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Ширина";
+                    componentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Width, 3) + " мм");
+                    if (componentProperty.Value.Length < MinStringProportionsLength)
                     {
-                        ComponentProperty.Value = "0";
+                        componentProperty.Value = EmptyStringWithZero;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Глубина
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Глубина";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Depth, 3) + " мм");
-                    if (ComponentProperty.Value.Length < minStringProportionsLength)
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Глубина";
+                    componentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Depth, 3) + " мм");
+                    if (componentProperty.Value.Length < MinStringProportionsLength)
                     {
-                        ComponentProperty.Value = "0";
+                        componentProperty.Value = EmptyStringWithZero;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Вес
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Вес";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Weight, 3) + " кг");
-                    if (ComponentProperty.Value.Length < minStringProportionsLength)
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Вес";
+                    componentProperty.Value = Convert.ToString(Math.Round(componentCatalog.Weight, 3) + " кг");
+                    if (componentProperty.Value.Length < MinStringProportionsLength)
                     {
-                        ComponentProperty.Value = "0";
+                        componentProperty.Value = EmptyStringWithZero;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Монтажная поверхность
-                    ComponentProperty = new ComponentProperties();
-                    string mountingSite = DBCon.MountingSites.Where(
+                    componentProperty = new ComponentProperties();
+                    string mountingSite = dataBaseConnection.MountingSites.Where(
                         o => o.InternalValue == componentCatalog.MountingSiteID).Select(
                         o1 => o1.Name).FirstOrDefault();
-                    ComponentProperty.Property = "Монтажная поверхность";
-                    ComponentProperty.Value = mountingSite;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty.Property = "Монтажная поверхность";
+                    componentProperty.Value = mountingSite;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Занимаемое пространство
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Занимаемое пространство";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(componentCatalog.MountingSpace, 3) + " мм2");
-                    if (ComponentProperty.Value.Length < minStringMountingSpaceLength)
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Занимаемое пространство";
+                    componentProperty.Value = Convert.ToString(Math.Round(componentCatalog.MountingSpace, 3) + " мм2");
+                    if (componentProperty.Value.Length < MinStringMountingSpaceLength)
                     {
-                        ComponentProperty.Value = "0";
+                        componentProperty.Value = EmptyStringWithZero;
                     }
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Область - раздел - сфера
-                    ComponentProperty = new ComponentProperties();
+                    componentProperty = new ComponentProperties();
                     // Спличу строку
                     var PartGroup = componentCatalog.PartGroup.Split('-');
                     var areaID = Convert.ToInt32(PartGroup[0]);
                     var sectionID = Convert.ToInt32(PartGroup[1]);
                     var sphereID = Convert.ToInt32(PartGroup[2]);
-                    var area = DBCon.Areas.Where(o => o.InternalValue == areaID).Select(
+                    var area = dataBaseConnection.Areas.Where(o => o.InternalValue == areaID).Select(
                         o1 => o1.Name).FirstOrDefault();
-                    var section = DBCon.Sections.Where(o => o.InternalValue == sectionID).Select(
+                    var section = dataBaseConnection.Sections.Where(o => o.InternalValue == sectionID).Select(
                         o1 => o1.Name).FirstOrDefault();
-                    var sphere = DBCon.Areas.Where(o => o.InternalValue == sphereID).Select(
+                    var sphere = dataBaseConnection.Areas.Where(o => o.InternalValue == sphereID).Select(
                         o1 => o1.Name).FirstOrDefault();
-                    ComponentProperty.Property = "Область";
-                    ComponentProperty.Value = area;
-                    componentPropertiesInfos.Add(ComponentProperty);
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Раздел";
-                    ComponentProperty.Value = section;
-                    componentPropertiesInfos.Add(ComponentProperty);
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Сфера";
-                    ComponentProperty.Value = sphere;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty.Property = "Область";
+                    componentProperty.Value = area;
+                    componentPropertiesInfos.Add(componentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Раздел";
+                    componentProperty.Value = section;
+                    componentPropertiesInfos.Add(componentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Сфера";
+                    componentProperty.Value = sphere;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Единица измерения
-                    ComponentProperty = new ComponentProperties();
-                    var quantityUnit = DBCon.QuantityUnits.Where(
+                    componentProperty = new ComponentProperties();
+                    var quantityUnit = dataBaseConnection.QuantityUnits.Where(
                         o => o.QuantityUnitID == componentCatalog.QuantityUnitID).Select(
                         o1 => o1.Name).FirstOrDefault();
-                    ComponentProperty.Property = "Единица измерения";
-                    ComponentProperty.Value = quantityUnit;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty.Property = "Единица измерения";
+                    componentProperty.Value = quantityUnit;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Количество упаковки
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Количество в упаковке";
-                    ComponentProperty.Value = Convert.ToString(componentCatalog.PackagingQuantity);
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Количество в упаковке";
+                    componentProperty.Value = Convert.ToString(componentCatalog.PackagingQuantity);
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Последнее изменение
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Последнее изменение";
-                    ComponentProperty.Value = componentCatalog.LastChange;
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Последнее изменение";
+                    componentProperty.Value = componentCatalog.LastChange;
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Цена продажи, Валюта 1
                     // Выводится ПОСЛЕДНИЙ актуальный прайс
                     // Нашел количество прайсов в таблице
                     // Выбрал последний (сортировка по возрастанию даты)
-                    var prices = DBCon.PriceLists.Where(
+                    var prices = dataBaseConnection.PriceLists.Where(
                         o => o.PartNumber == componentCatalog.PartNumber).OrderBy(
                         o1 => o1.LastChange).ToList();
                     var salesPrice1 = prices.Select(
                         o => o.SalesPrice1).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Цена продажи, Валюта 1";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(salesPrice1, 3));
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Цена продажи, Валюта 1";
+                    componentProperty.Value = Convert.ToString(Math.Round(salesPrice1, 3));
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Цена продажи, Валюта 2
                     var salesPrice2 = prices.Select(
                         o => o.SalesPrice2).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Цена продажи, Валюта 2";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(salesPrice2, 3));
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Цена продажи, Валюта 2";
+                    componentProperty.Value = Convert.ToString(Math.Round(salesPrice2, 3));
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Закупочная цена, Валюта 1
                     var purchasePrice1 = prices.Select(
                         o => o.PurchasePrice1).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Закупочная цена, Валюта 1";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(purchasePrice1, 3));
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Закупочная цена, Валюта 1";
+                    componentProperty.Value = Convert.ToString(Math.Round(purchasePrice1, 3));
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Закупочная цена, Валюта 2
                     var purchasePrice2 = prices.Select(
                         o => o.PurchasePrice2).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Закупочная цена, Валюта 2";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(purchasePrice2, 3));
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Закупочная цена, Валюта 2";
+                    componentProperty.Value = Convert.ToString(Math.Round(purchasePrice2, 3));
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Цена упаковки, Валюта 1
                     var packagingPrice1 = prices.Select(
                         o => o.PackagingPrice1).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Цена упаковки, Валюта 1";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(packagingPrice1, 3));
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Цена упаковки, Валюта 1";
+                    componentProperty.Value = Convert.ToString(Math.Round(packagingPrice1, 3));
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Цена упаковки, Валюта 2
                     var packagingPrice2 = prices.Select(
                         o => o.PackagingPrice2).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Цена упаковки, Валюта 2";
-                    ComponentProperty.Value = Convert.ToString(Math.Round(packagingPrice2, 3));
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Цена упаковки, Валюта 2";
+                    componentProperty.Value = Convert.ToString(Math.Round(packagingPrice2, 3));
+                    componentPropertiesInfos.Add(componentProperty);
 
                     // Единица цены
                     var priceUnit = prices.Select(
                         o => o.PriceUnit).LastOrDefault();
-                    ComponentProperty = new ComponentProperties();
-                    ComponentProperty.Property = "Единица цены";
-                    ComponentProperty.Value = Convert.ToString(priceUnit);
-                    componentPropertiesInfos.Add(ComponentProperty);
+                    componentProperty = new ComponentProperties();
+                    componentProperty.Property = "Единица цены";
+                    componentProperty.Value = Convert.ToString(priceUnit);
+                    componentPropertiesInfos.Add(componentProperty);
                 }
                 return componentPropertiesInfos;
             }
@@ -310,16 +312,16 @@ namespace SpecificationOfProject.Client
             try
             {
                 //Ширина колонок от А до J
-                double widthCellA = 4;
-                double widthCellB = 12.8;
-                double widthCellC = 23;
-                double widthCellD = 15.57;
-                double widthCellE = 15.7;
-                double widthCellF = 11.5;
-                double widthCellG = 5.29;
-                double widthCellH = 5.57;
-                double widthCellI = 24;
-                double widthCellJ = 17;
+                const double WidthCellA = 4;
+                const double WidthCellB = 12.8;
+                const double WidthCellC = 23;
+                const double WidthCellD = 15.57;
+                const double WidthCellE = 15.7;
+                const double WidthCellF = 11.5;
+                const double WidthCellG = 5.29;
+                const double WidthCellH = 5.57;
+                const double WidthCellI = 24;
+                const double WidthCellJ = 17;
 
                 // Использую библиотеку EPPlus
                 using (var spec = new ExcelPackage())
@@ -329,16 +331,16 @@ namespace SpecificationOfProject.Client
 
                     // Глобальные настройки документа                
                     // Настраиваю ширину колонок и переносы
-                    workSheet.Column(1).Width = widthCellA;
-                    workSheet.Column(2).Width = widthCellB;
-                    workSheet.Column(3).Width = widthCellC;
-                    workSheet.Column(4).Width = widthCellD;
-                    workSheet.Column(5).Width = widthCellE;
-                    workSheet.Column(6).Width = widthCellF;
-                    workSheet.Column(7).Width = widthCellG;
-                    workSheet.Column(8).Width = widthCellH;
-                    workSheet.Column(9).Width = widthCellI;
-                    workSheet.Column(10).Width = widthCellJ;
+                    workSheet.Column(1).Width = WidthCellA;
+                    workSheet.Column(2).Width = WidthCellB;
+                    workSheet.Column(3).Width = WidthCellC;
+                    workSheet.Column(4).Width = WidthCellD;
+                    workSheet.Column(5).Width = WidthCellE;
+                    workSheet.Column(6).Width = WidthCellF;
+                    workSheet.Column(7).Width = WidthCellG;
+                    workSheet.Column(8).Width = WidthCellH;
+                    workSheet.Column(9).Width = WidthCellI;
+                    workSheet.Column(10).Width = WidthCellJ;
 
                     // Дефолтный шрифт, размер шрифта
                     workSheet.Cells.Style.Font.Name = "Times New Roman";
@@ -387,15 +389,15 @@ namespace SpecificationOfProject.Client
                     workSheet.Cells["I8"].Value = "Доп. характеристик.";
                     workSheet.Cells["J8"].Value = "Текущий остаток у указанного получателя";
 
-                    int startedRow = 8; // Стартовая строка для записи
+                    const int StartedRow = 8; // Стартовая строка для записи
                     int endRow = 9; // Конечная строка (на текущий момент)
                     int counterOfComponents = 0; // Количество компонентов в общем по спецификации
-                    int currentRow = startedRow + 1; // Текущая строка для записи
+                    int currentRow = StartedRow + 1; // Текущая строка для записи
 
                     // Устанавливаю границу для шапки таблицы (десять столбцов)
-                    for (int column = 1; column <= 10; column++)
+                    for (int column = 0 + 1; column <= 10; column++)
                     {
-                        workSheet.Cells[startedRow, column].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                        workSheet.Cells[StartedRow, column].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                     }
 
                     // Получаю данные компонентов для записи
@@ -411,16 +413,16 @@ namespace SpecificationOfProject.Client
                     {
                         workSheet.Cells[currentRow, 1, currentRow, 10].Merge = true;
                         workSheet.Cells[currentRow, 1].Value =
-                            "Изделие: " + "\"" + articleProperty.articleDescription + "\" "+ "(" + articleProperty.articleName + ")";
+                            "Изделие: " + "\"" + articleProperty.ArticleDescription + "\" "+ "(" + articleProperty.ArticleName + ")";
                         workSheet.Cells[currentRow, 1, currentRow, 10].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                         currentRow += 1; // Записал строку, увеличил счетчик на единицу
                         foreach (ComponentPropertiesForSpecification componentPropery in componentsPropertiesForSpecification)
                         {
                             // Записываем только, если articleID изделия = articleID компонента
-                            if (articleProperty.articleID == componentPropery.articleID)
+                            if (articleProperty.ArticleID == componentPropery.ArticleID)
                             {
                                 // Настройка строки для записи и столбцов
-                                for (int column = 1; column <= 10; column++)
+                                for (int column = 0 + 1; column <= 10; column++)
                                 {
                                     workSheet.Cells[currentRow, column].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                                     workSheet.Cells[currentRow, column].Style.Font.Name = "Times New Roman";
@@ -429,15 +431,23 @@ namespace SpecificationOfProject.Client
                                     workSheet.Cells[currentRow, column].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                                 }
 
+                                const int ItemNumberColumn = 1;
+                                const int Description1Column = 3;
+                                const int OrderNumberColumn = 4;
+                                const int ManufacturerColumn = 5;
+                                const int QuantityUnitColumn = 7;
+                                const int ItemCountColumn = 8;
+                                const int Description2Column = 9;
+
                                 // Запись по столбцам (от 1 до 10, A > J). Не все столбцы
-                                workSheet.Cells[currentRow, 1].Value = counterOfComponents + 1;
-                                workSheet.Cells[currentRow, 3].Value = componentPropery.Description1 +
+                                workSheet.Cells[currentRow, ItemNumberColumn].Value = counterOfComponents + 1;
+                                workSheet.Cells[currentRow, Description1Column].Value = componentPropery.Description1 +
                                     " " + componentPropery.PartNumber;
-                                workSheet.Cells[currentRow, 4].Value = componentPropery.OrderNumber;
-                                workSheet.Cells[currentRow, 5].Value = componentPropery.ManufacturerFullName;
-                                workSheet.Cells[currentRow, 7].Value = componentPropery.QuantityUnit;
-                                workSheet.Cells[currentRow, 8].Value = componentPropery.Count;
-                                workSheet.Cells[currentRow, 9].Value = componentPropery.Description2;
+                                workSheet.Cells[currentRow, OrderNumberColumn].Value = componentPropery.OrderNumber;
+                                workSheet.Cells[currentRow, ManufacturerColumn].Value = componentPropery.ManufacturerFullName;
+                                workSheet.Cells[currentRow, QuantityUnitColumn].Value = componentPropery.QuantityUnit;
+                                workSheet.Cells[currentRow, ItemCountColumn].Value = componentPropery.Count;
+                                workSheet.Cells[currentRow, Description2Column].Value = componentPropery.Description2;
 
                                 currentRow += 1;
                                 counterOfComponents++;
@@ -446,13 +456,16 @@ namespace SpecificationOfProject.Client
                         endRow = currentRow;
                     }
 
+                    const int FIOColumn = 9;
+                    const int ServiceNameColumn = 2;
+
                     // Указываем начальника службы и ФИО
-                    workSheet.Cells[endRow + 1, 2, endRow + 1, 3].Merge = true;
-                    workSheet.Cells[endRow + 1, 2].Value = "<укажите начальника службы>";
-                    workSheet.Cells[endRow + 1, 9].Value = "И.О. Фамилия";
+                    workSheet.Cells[endRow + 1, ServiceNameColumn, endRow + 1, ServiceNameColumn + 1].Merge = true;
+                    workSheet.Cells[endRow + 1, ServiceNameColumn].Value = "<укажите начальника службы>";
+                    workSheet.Cells[endRow + 1, FIOColumn].Value = "И.О. Фамилия";
                     // Настраиваем отображение
-                    workSheet.Cells[endRow + 1, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    workSheet.Cells[endRow + 1, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    workSheet.Cells[endRow + 1, ServiceNameColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    workSheet.Cells[endRow + 1, FIOColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                     // Сохраняем документ
                     spec.SaveAs(new FileInfo(savePath + "\\Спецификация.xlsx"));
@@ -472,16 +485,16 @@ namespace SpecificationOfProject.Client
             try
             {
                 //Ширина колонок от А до J
-                double widthCellA = 4;
-                double widthCellB = 12.8;
-                double widthCellC = 23;
-                double widthCellD = 15.57;
-                double widthCellE = 15.7;
-                double widthCellF = 11.5;
-                double widthCellG = 5.29;
-                double widthCellH = 5.57;
-                double widthCellI = 24;
-                double widthCellJ = 17;
+                const double WidthCellA = 4;
+                const double WidthCellB = 12.8;
+                const double WidthCellC = 23;
+                const double WidthCellD = 15.57;
+                const double WidthCellE = 15.7;
+                const double WidthCellF = 11.5;
+                const double WidthCellG = 5.29;
+                const double WidthCellH = 5.57;
+                const double WidthCellI = 24;
+                const double WidthCellJ = 17;
 
                 // Использую библиотеку EPPlus
                 using (var spec = new ExcelPackage())
@@ -491,16 +504,16 @@ namespace SpecificationOfProject.Client
 
                     // Глобальные настройки документа                
                     // Настраиваю ширину колонок и переносы
-                    workSheet.Column(1).Width = widthCellA;
-                    workSheet.Column(2).Width = widthCellB;
-                    workSheet.Column(3).Width = widthCellC;
-                    workSheet.Column(4).Width = widthCellD;
-                    workSheet.Column(5).Width = widthCellE;
-                    workSheet.Column(6).Width = widthCellF;
-                    workSheet.Column(7).Width = widthCellG;
-                    workSheet.Column(8).Width = widthCellH;
-                    workSheet.Column(9).Width = widthCellI;
-                    workSheet.Column(10).Width = widthCellJ;
+                    workSheet.Column(1).Width = WidthCellA;
+                    workSheet.Column(2).Width = WidthCellB;
+                    workSheet.Column(3).Width = WidthCellC;
+                    workSheet.Column(4).Width = WidthCellD;
+                    workSheet.Column(5).Width = WidthCellE;
+                    workSheet.Column(6).Width = WidthCellF;
+                    workSheet.Column(7).Width = WidthCellG;
+                    workSheet.Column(8).Width = WidthCellH;
+                    workSheet.Column(9).Width = WidthCellI;
+                    workSheet.Column(10).Width = WidthCellJ;
 
                     // Дефолтный шрифт, размер шрифта
                     workSheet.Cells.Style.Font.Name = "Times New Roman";
@@ -560,6 +573,7 @@ namespace SpecificationOfProject.Client
                     workSheet.Cells["H10"].Value = "Кол-во";
                     workSheet.Cells["I10"].Value = "Доп. характеристик.";
                     workSheet.Cells["J10"].Value = "Текущий остаток у указанного получателя";
+
                     for (int column = 1; column <= 10; column++)
                     {
                         workSheet.Cells[10, column].Style.Border.BorderAround(ExcelBorderStyle.Thin);
@@ -575,39 +589,50 @@ namespace SpecificationOfProject.Client
                     var dataForWarehouseRequests = GetPropertiesForWarehouseRequest(filteredComponents);
 
                     // Заполняю
-                    const int startedRow = 10;
+                    const int StartedRow = 10;
                     int endRow = 11; // Конец строк с компонентами
                     for (int item = 0; item < dataForWarehouseRequests.Count; item++)
                     {
                         // Настройка строки для записи и столбцов
                         for (int column = 1; column <= 10; column++)
                         {
-                            workSheet.Cells[startedRow + item + 1, column].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                            workSheet.Cells[startedRow + item + 1, column].Style.Font.Name = "Times New Roman";
-                            workSheet.Cells[startedRow + item + 1, column].Style.Font.Size = 10;
-                            workSheet.Cells[startedRow + item + 1, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                            workSheet.Cells[startedRow + item + 1, column].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            workSheet.Cells[StartedRow + item + 1, column].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                            workSheet.Cells[StartedRow + item + 1, column].Style.Font.Name = "Times New Roman";
+                            workSheet.Cells[StartedRow + item + 1, column].Style.Font.Size = 10;
+                            workSheet.Cells[StartedRow + item + 1, column].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            workSheet.Cells[StartedRow + item + 1, column].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                         }
 
+                        const int ItemNumberColumn = 1;
+                        const int Description1Column = 3;
+                        const int OrderNumberColumn = 4;
+                        const int ManufacturerColumn = 5;
+                        const int QuantityUnitColumn = 7;
+                        const int ItemCountColumn = 8;
+                        const int Description2Column = 9;
+
                         // Запись по столбцам (от 1 до 10, A > J)
-                        workSheet.Cells[startedRow + item + 1, 1].Value = item + 1;
-                        workSheet.Cells[startedRow + item + 1, 3].Value = dataForWarehouseRequests[item].Description1 +
+                        workSheet.Cells[StartedRow + item + 1, ItemNumberColumn].Value = item + 1;
+                        workSheet.Cells[StartedRow + item + 1, Description1Column].Value = dataForWarehouseRequests[item].Description1 +
                             " " + dataForWarehouseRequests[item].PartNumber;
-                        workSheet.Cells[startedRow + item + 1, 4].Value = dataForWarehouseRequests[item].OrderNumber;
-                        workSheet.Cells[startedRow + item + 1, 5].Value = dataForWarehouseRequests[item].ManufacturerFullName;
-                        workSheet.Cells[startedRow + item + 1, 7].Value = dataForWarehouseRequests[item].QuantityUnit;
-                        workSheet.Cells[startedRow + item + 1, 8].Value = dataForWarehouseRequests[item].Count;
-                        workSheet.Cells[startedRow + item + 1, 9].Value = dataForWarehouseRequests[item].Description2;
-                        endRow = startedRow + item + 1;
+                        workSheet.Cells[StartedRow + item + 1, OrderNumberColumn].Value = dataForWarehouseRequests[item].OrderNumber;
+                        workSheet.Cells[StartedRow + item + 1, ManufacturerColumn].Value = dataForWarehouseRequests[item].ManufacturerFullName;
+                        workSheet.Cells[StartedRow + item + 1, QuantityUnitColumn].Value = dataForWarehouseRequests[item].QuantityUnit;
+                        workSheet.Cells[StartedRow + item + 1, ItemCountColumn].Value = dataForWarehouseRequests[item].Count;
+                        workSheet.Cells[StartedRow + item + 1, Description2Column].Value = dataForWarehouseRequests[item].Description2;
+                        endRow = StartedRow + item + 1;
                     }
 
+                    const int FIOColumn = 9;
+                    const int ServiceNameColumn = 2;
+
                     // Указываем начальника службы и ФИО
-                    workSheet.Cells[endRow + 2, 2, endRow + 2, 3].Merge = true;
-                    workSheet.Cells[endRow + 2, 2].Value = "<укажите начальника службы>";
-                    workSheet.Cells[endRow + 2, 9].Value = "И.О. Фамилия";
+                    workSheet.Cells[endRow + 2, ServiceNameColumn, endRow + 2, ServiceNameColumn + 1].Merge = true;
+                    workSheet.Cells[endRow + 2, ServiceNameColumn].Value = "<укажите начальника службы>";
+                    workSheet.Cells[endRow + 2, FIOColumn].Value = "И.О. Фамилия";
                     // Настраиваем отображение
-                    workSheet.Cells[endRow + 2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    workSheet.Cells[endRow + 2, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    workSheet.Cells[endRow + 2, ServiceNameColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    workSheet.Cells[endRow + 2, FIOColumn].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                     // Сохраняем документ
                     spec.SaveAs(new FileInfo(savePath + "\\Заявка на склад.xlsx"));
@@ -628,16 +653,16 @@ namespace SpecificationOfProject.Client
                 // Так как ID записан строкой в списке, то конвертируем
                 var curProjectID = Convert.ToInt32(projID);
                 var nonFilteredComponents = new List<ComponentInitialProperties>();
-                using (DataBaseContext DBCon = new DataBaseContext())
+                using (DataBaseContext dataBaseConnection = new DataBaseContext())
                 {
                     // Получил изделия по проекту
-                    var pArticles = DBCon.PArticles.Where(
+                    var pArticles = dataBaseConnection.PArticles.Where(
                         o => o.ProjectID == curProjectID).ToList();
                     // Перебираю проекты и заполняю компоненты
                     foreach (PArticle pArticle in pArticles)
                     {
                         // Получил список всех компонентов в изделии
-                        var components = DBCon.Components.Where(
+                        var components = dataBaseConnection.Components.Where(
                             o => o.PArticleID == pArticle.PArticleID).ToList();
                         // Записываю базовую информацию по компонентам
                         foreach (Component component in components)
@@ -710,30 +735,30 @@ namespace SpecificationOfProject.Client
                     var partNumber = filteredComponents[item].PartNumber;
                     property.Count = filteredComponents[item].Count;
                     property.PartNumber = filteredComponents[item].PartNumber;
-                    using (DataBaseContext DBCon = new DataBaseContext())
+                    using (DataBaseContext dataBaseConnection = new DataBaseContext())
                     {
-                        property.Description1 = DBCon.ComponentCatalogs.Where(
+                        property.Description1 = dataBaseConnection.ComponentCatalogs.Where(
                             o => o.PartNumber == partNumber).Select(
                             o1 => o1.Description1).FirstOrDefault();
-                        property.Description2 = DBCon.ComponentCatalogs.Where(
+                        property.Description2 = dataBaseConnection.ComponentCatalogs.Where(
                             o => o.PartNumber == partNumber).Select(
                             o1 => o1.Description2).FirstOrDefault();
-                        property.OrderNumber = DBCon.ComponentCatalogs.Where(
+                        property.OrderNumber = dataBaseConnection.ComponentCatalogs.Where(
                             o => o.PartNumber == partNumber).Select(
                             o1 => o1.OrderNumber).FirstOrDefault();
-                        property.ManufacturerFullName = DBCon.ComponentCatalogs.Where(
+                        property.ManufacturerFullName = dataBaseConnection.ComponentCatalogs.Where(
                             o => o.PartNumber == partNumber).Select(
                             o1 => o1.ManufacturerFullName).FirstOrDefault();
-                        int? quantityUnitID = DBCon.ComponentCatalogs.Where(
+                        int? quantityUnitID = dataBaseConnection.ComponentCatalogs.Where(
                             o => o.PartNumber == partNumber).Select(
                             o1 => o1.QuantityUnitID).FirstOrDefault();
                         if (quantityUnitID == null)
                         {
-                            property.QuantityUnit = "";
+                            property.QuantityUnit = string.Empty;
                         }
                         else
                         {
-                            property.QuantityUnit = DBCon.QuantityUnits.Where(
+                            property.QuantityUnit = dataBaseConnection.QuantityUnits.Where(
                                 o => o.QuantityUnitID == quantityUnitID).Select(
                                 o1 => o1.Name).FirstOrDefault();
                         }
@@ -756,46 +781,46 @@ namespace SpecificationOfProject.Client
             {
                 var componentPropertiesForSpecification = new List<ComponentPropertiesForSpecification>();
                 var projectID = Convert.ToInt32(projID);
-                using (DataBaseContext DBCon = new DataBaseContext())
+                using (DataBaseContext dataBaseConnection = new DataBaseContext())
                 {
                     // Ищу изделия по проекту
-                    var pArticles = DBCon.PArticles.Where(
+                    var pArticles = dataBaseConnection.PArticles.Where(
                         o => o.ProjectID == projectID).ToArray();
                     foreach (PArticle pArticle in pArticles)
                     {
                         // Ищу компоненты по изделиям в проекте
-                        var components = DBCon.Components.Where(
+                        var components = dataBaseConnection.Components.Where(
                             o => o.PArticleID == pArticle.PArticleID).ToArray();
                         // Перебираю и записываю данные
                         foreach (Component component in components)
                         {
                             var propertyForSpecification = new ComponentPropertiesForSpecification();
                             var componentPartNumber = component.PartNumber;
-                            propertyForSpecification.articleID = component.PArticleID;
+                            propertyForSpecification.ArticleID = component.PArticleID;
                             propertyForSpecification.PartNumber = component.PartNumber;
                             propertyForSpecification.Count = component.Count;
-                            propertyForSpecification.OrderNumber = DBCon.ComponentCatalogs.Where(
+                            propertyForSpecification.OrderNumber = dataBaseConnection.ComponentCatalogs.Where(
                                 o => o.PartNumber == componentPartNumber).Select(
                                 o1 => o1.OrderNumber).FirstOrDefault();
-                            propertyForSpecification.Description1 = DBCon.ComponentCatalogs.Where(
+                            propertyForSpecification.Description1 = dataBaseConnection.ComponentCatalogs.Where(
                                 o => o.PartNumber == componentPartNumber).Select(
                                 o1 => o1.Description1).FirstOrDefault();
-                            propertyForSpecification.Description2 = DBCon.ComponentCatalogs.Where(
+                            propertyForSpecification.Description2 = dataBaseConnection.ComponentCatalogs.Where(
                                 o => o.PartNumber == componentPartNumber).Select(
                                 o1 => o1.Description2).FirstOrDefault();
-                            propertyForSpecification.ManufacturerFullName = DBCon.ComponentCatalogs.Where(
+                            propertyForSpecification.ManufacturerFullName = dataBaseConnection.ComponentCatalogs.Where(
                                 o => o.PartNumber == componentPartNumber).Select(
                                 o1 => o1.ManufacturerFullName).FirstOrDefault();
-                            int? quantityUnitID = DBCon.ComponentCatalogs.Where(
+                            int? quantityUnitID = dataBaseConnection.ComponentCatalogs.Where(
                             o => o.PartNumber == componentPartNumber).Select(
                             o1 => o1.QuantityUnitID).FirstOrDefault();
                             if (quantityUnitID == null)
                             {
-                                propertyForSpecification.QuantityUnit = "";
+                                propertyForSpecification.QuantityUnit = string.Empty;
                             }
                             else
                             {
-                                propertyForSpecification.QuantityUnit = DBCon.QuantityUnits.Where(
+                                propertyForSpecification.QuantityUnit = dataBaseConnection.QuantityUnits.Where(
                                     o => o.QuantityUnitID == quantityUnitID).Select(
                                     o1 => o1.Name).FirstOrDefault();
                             }
@@ -819,22 +844,22 @@ namespace SpecificationOfProject.Client
             {
                 var articlePropertiesForSpecification = new List<ArticlePropertiesForSpecification>();
                 var currentProjectID = Convert.ToInt32(projID);
-                using (DataBaseContext DBCon = new DataBaseContext())
+                using (DataBaseContext dataBaseConnection = new DataBaseContext())
                 {
-                    var pArticles = DBCon.PArticles.Where(
+                    var pArticles = dataBaseConnection.PArticles.Where(
                         o => o.ProjectID == currentProjectID).ToArray();
                     foreach (PArticle pArticle in pArticles)
                     {
                         var propertyForSpecification = new ArticlePropertiesForSpecification();
-                        var pArticleDecription = DBCon.LocationDescriptions.Where(
+                        var pArticleDecription = dataBaseConnection.LocationDescriptions.Where(
                             o => o.LocationDescriptionID == pArticle.LocationDesriptionID).Select(
                             o1 => o1.Description).FirstOrDefault();
-                        var pArticleName = DBCon.LocationDescriptions.Where(
+                        var pArticleName = dataBaseConnection.LocationDescriptions.Where(
                             o => o.LocationDescriptionID == pArticle.LocationDesriptionID).Select(
                             o1 => o1.Name).FirstOrDefault();
-                        propertyForSpecification.articleName = pArticleName;
-                        propertyForSpecification.articleDescription = pArticleDecription;
-                        propertyForSpecification.articleID = pArticle.PArticleID;
+                        propertyForSpecification.ArticleName = pArticleName;
+                        propertyForSpecification.ArticleDescription = pArticleDecription;
+                        propertyForSpecification.ArticleID = pArticle.PArticleID;
                         articlePropertiesForSpecification.Add(propertyForSpecification);
                     }
                 }
